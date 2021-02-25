@@ -1,3 +1,9 @@
+from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.evaluation import DatasetEvaluator
+import numpy as np
+from collections import OrderedDict
+
+
 class PDM_BBOX(DatasetEvaluator):
     def __init__(self, datasetName, classes):
         self.classes = classes

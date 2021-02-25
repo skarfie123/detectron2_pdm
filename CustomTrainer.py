@@ -1,3 +1,9 @@
+from detectron2.engine import DefaultTrainer
+from detectron2.evaluation import COCOEvaluator, DatasetEvaluators
+from PDM_BBOX_Evaluator import PDM_BBOX
+import os
+
+
 class CustomTrainer(DefaultTrainer):
     vNotG = True
     # def __init__(self, cfg, vNotG):
@@ -11,7 +17,8 @@ class CustomTrainer(DefaultTrainer):
             [
                 COCOEvaluator(dataset_name, ("bbox", "segm"), True, output_folder),
                 PDM_BBOX(
-                    dataset_name, [1, 2, 3, 4] if cls.vNotG else [0, 1, 2, 3, 4, 5, 6] #TODO: find
+                    dataset_name,
+                    [1, 2, 3, 4] if cls.vNotG else [0, 1, 2, 3, 4, 5, 6],  # TODO: find
                 ),
             ]
         )
