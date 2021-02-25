@@ -4,7 +4,7 @@ import numpy as np
 from collections import OrderedDict
 
 
-class PDM_BBOX(DatasetEvaluator):
+class PDM_Evaluator(DatasetEvaluator):
     def __init__(self, datasetName, classes):
         self.classes = classes
         self.datasetName = datasetName
@@ -19,6 +19,78 @@ class PDM_BBOX(DatasetEvaluator):
             self.presences[c] = []
             self.detections[c] = []
             self.measurements[c] = []
+
+    def evaluate(self):
+        result = {}
+        average_presences = 0
+        average_detections = 0
+        average_measurements = 0
+        classNames = MetadataCatalog.get(self.datasetName).thing_classes
+        for c in self.classes:
+            try:
+                result[f"AP: {classNames[c]}"] = sum(self.presences[c]) / len(
+                    self.presences[c]
+                )
+                average_presences += result[f"AP: {classNames[c]}"]
+            except ZeroDivisionError:
+                result[f"AP: {classNames[c]}"] = "N/A"
+            try:
+                result[f"AD: {classNames[c]}"] = sum(self.detections[c]) / len(
+                    self.detections[c]
+                )
+                average_detections += result[f"AD: {classNames[c]}"]
+            except ZeroDivisionError:
+                result[f"AD: {classNames[c]}"] = "N/A"
+            try:
+                result[f"AM: {classNames[c]}"] = sum(self.measurements[c]) / len(
+                    self.measurements[c]
+                )
+                average_measurements += result[f"AM: {classNames[c]}"]
+            except ZeroDivisionError:
+                result[f"AM: {classNames[c]}"] = "N/A"
+        average_presences = average_presences / len(self.classes)
+        average_detections = average_detections / len(self.classes)
+        average_measurements = average_measurements / len(self.classes)
+        result["AP"] = average_presences
+        result["AD"] = average_detections
+        result["AM"] = average_measurements
+        return OrderedDict({self.name: result})
+
+    def print_result(func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            print(func.__name__, result)
+            return result
+
+        return wrapper
+
+    @staticmethod
+    def distance(a, p):
+        return np.sqrt((a[0] - p[0]) ** 2 + (a[1] - p[1]) ** 2)
+
+    @staticmethod
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+
+    @classmethod
+    def distance_score(cls, a_value, p_value, width):
+        assert a_value >= 0 and p_value >= 0 and width > 0
+        # return np.exp(-((a_value-p_value)/width)**2)
+        return 2 * cls.sigmoid(-((4 * (a_value - p_value) / width) ** 2))
+
+    @classmethod
+    def size_score(cls, a_size, p_size):
+        assert a_size > 0, "zero size annotation"
+        if p_size == 0:
+            return 0
+        # return max(1-abs(a_size-p_size)/a_size, 0)
+        return cls.distance_score(a_size, p_size, 2 * a_size)
+
+
+class PDM_BBOX(PDM_Evaluator):
+    def __init__(self, datasetName, classes):
+        super.__init__(datasetName, classes)
+        self.name = "PDM_BBOX"
 
     def process(self, inputs, outputs):
         instances = outputs[0]["instances"]
@@ -70,42 +142,6 @@ class PDM_BBOX(DatasetEvaluator):
                 # self.measurements[c].append(0) # note choosing to excluding this so that measurement metric only covers correctly detected images
         if not len(outputs + inputs) == 2:
             print("WARNING", len(inputs), len(outputs))
-
-    def evaluate(self):
-        result = {}
-        average_presences = 0
-        average_detections = 0
-        average_measurements = 0
-        classNames = MetadataCatalog.get(self.datasetName).thing_classes
-        for c in self.classes:
-            try:
-                result[f"AP: {classNames[c]}"] = sum(self.presences[c]) / len(
-                    self.presences[c]
-                )
-                average_presences += result[f"AP: {classNames[c]}"]
-            except ZeroDivisionError:
-                result[f"AP: {classNames[c]}"] = "N/A"
-            try:
-                result[f"AD: {classNames[c]}"] = sum(self.detections[c]) / len(
-                    self.detections[c]
-                )
-                average_detections += result[f"AD: {classNames[c]}"]
-            except ZeroDivisionError:
-                result[f"AD: {classNames[c]}"] = "N/A"
-            try:
-                result[f"AM: {classNames[c]}"] = sum(self.measurements[c]) / len(
-                    self.measurements[c]
-                )
-                average_measurements += result[f"AM: {classNames[c]}"]
-            except ZeroDivisionError:
-                result[f"AM: {classNames[c]}"] = "N/A"
-        average_presences = average_presences / len(self.classes)
-        average_detections = average_detections / len(self.classes)
-        average_measurements = average_measurements / len(self.classes)
-        result["AP"] = average_presences
-        result["AD"] = average_detections
-        result["AM"] = average_measurements
-        return OrderedDict({"PDM_BBOX": result})
 
     def print_result(func):
         def wrapper(*args, **kwargs):
@@ -169,10 +205,6 @@ class PDM_BBOX(DatasetEvaluator):
         # print(iter, tswaps)
         return pairs
 
-    @staticmethod
-    def distance(a, p):
-        return np.sqrt((a[0] - p[0]) ** 2 + (a[1] - p[1]) ** 2)
-
     @classmethod
     # @print_result
     def detection_score(cls, a, pb):
@@ -202,20 +234,18 @@ class PDM_BBOX(DatasetEvaluator):
             * cls.size_score(a["bbox"][3], pb[3].item() - pb[1].item())
         )
 
-    @classmethod
-    def distance_score(cls, a_value, p_value, width):
-        assert a_value >= 0 and p_value >= 0 and width > 0
-        # return np.exp(-((a_value-p_value)/width)**2)
-        return 2 * cls.sigmoid(-((4 * (a_value - p_value) / width) ** 2))
 
-    @classmethod
-    def size_score(cls, a_size, p_size):
-        assert a_size > 0, "zero size annotation"
-        if p_size == 0:
-            return 0
-        # return max(1-abs(a_size-p_size)/a_size, 0)
-        return cls.distance_score(a_size, p_size, 2 * a_size)
+class PDM_MBBOX(DatasetEvaluator):
+    def __init__(self, datasetName, classes):
+        super.__init__(datasetName, classes)
+        self.name = "PDM_MBBOX"
 
-    @staticmethod
-    def sigmoid(x):
-        return 1 / (1 + np.exp(-x))
+    # TODO implement PDM_MBBOX
+
+
+class PDM_MASK(DatasetEvaluator):
+    def __init__(self, datasetName, classes):
+        super.__init__(datasetName, classes)
+        self.name = "PDM_MASK"
+
+    # TODO implement PDM_MASK
