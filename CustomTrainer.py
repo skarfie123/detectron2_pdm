@@ -1,6 +1,6 @@
 from detectron2.engine import DefaultTrainer
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators
-from PDM_BBOX_Evaluator import PDM_BBOX
+from PDM_Evaluators import PDM_BBOX
 import os
 
 
