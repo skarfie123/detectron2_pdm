@@ -89,7 +89,7 @@ class PDM_Evaluator(DatasetEvaluator):
 
 class PDM_BBOX(PDM_Evaluator):
     def __init__(self, datasetName, classes):
-        super.__init__(datasetName, classes)
+        super().__init__(datasetName, classes)
         self.name = "PDM_BBOX"
 
     def process(self, inputs, outputs):
@@ -237,7 +237,7 @@ class PDM_BBOX(PDM_Evaluator):
 
 class PDM_MBBOX(DatasetEvaluator):
     def __init__(self, datasetName, classes):
-        super.__init__(datasetName, classes)
+        super().__init__(datasetName, classes)
         self.name = "PDM_MBBOX"
 
     # TODO implement PDM_MBBOX
@@ -245,7 +245,7 @@ class PDM_MBBOX(DatasetEvaluator):
 
 class PDM_MASK(DatasetEvaluator):
     def __init__(self, datasetName, classes):
-        super.__init__(datasetName, classes)
+        super().__init__(datasetName, classes)
         self.name = "PDM_MASK"
 
     # TODO implement PDM_MASK
