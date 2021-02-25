@@ -33,21 +33,21 @@ class PDM_Evaluator(DatasetEvaluator):
                 )
                 average_presences += result[f"AP: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AP: {classNames[c]}"] = "N/A"
+                result[f"AP: {classNames[c]}"] = -1
             try:
                 result[f"AD: {classNames[c]}"] = sum(self.detections[c]) / len(
                     self.detections[c]
                 )
                 average_detections += result[f"AD: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AD: {classNames[c]}"] = "N/A"
+                result[f"AD: {classNames[c]}"] = -1
             try:
                 result[f"AM: {classNames[c]}"] = sum(self.measurements[c]) / len(
                     self.measurements[c]
                 )
                 average_measurements += result[f"AM: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AM: {classNames[c]}"] = "N/A"
+                result[f"AM: {classNames[c]}"] = -1
         average_presences = average_presences / len(self.classes)
         average_detections = average_detections / len(self.classes)
         average_measurements = average_measurements / len(self.classes)
