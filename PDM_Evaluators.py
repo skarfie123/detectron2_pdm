@@ -28,32 +28,32 @@ class PDM_Evaluator(DatasetEvaluator):
         classNames = MetadataCatalog.get(self.datasetName).thing_classes
         for c in self.classes:
             try:
-                result[f"AP: {classNames[c]}"] = sum(self.presences[c]) / len(
+                result[f"P: {classNames[c]}"] = sum(self.presences[c]) / len(
                     self.presences[c]
                 )
-                average_presences += result[f"AP: {classNames[c]}"]
+                average_presences += result[f"P: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AP: {classNames[c]}"] = -1
+                result[f"P: {classNames[c]}"] = -1
             try:
-                result[f"AD: {classNames[c]}"] = sum(self.detections[c]) / len(
+                result[f"D: {classNames[c]}"] = sum(self.detections[c]) / len(
                     self.detections[c]
                 )
-                average_detections += result[f"AD: {classNames[c]}"]
+                average_detections += result[f"D: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AD: {classNames[c]}"] = -1
+                result[f"D: {classNames[c]}"] = -1
             try:
-                result[f"AM: {classNames[c]}"] = sum(self.measurements[c]) / len(
+                result[f"M: {classNames[c]}"] = sum(self.measurements[c]) / len(
                     self.measurements[c]
                 )
-                average_measurements += result[f"AM: {classNames[c]}"]
+                average_measurements += result[f"M: {classNames[c]}"]
             except ZeroDivisionError:
-                result[f"AM: {classNames[c]}"] = -1
+                result[f"M: {classNames[c]}"] = -1
         average_presences = average_presences / len(self.classes)
         average_detections = average_detections / len(self.classes)
         average_measurements = average_measurements / len(self.classes)
-        result["AP"] = average_presences
-        result["AD"] = average_detections
-        result["AM"] = average_measurements
+        result["P"] = average_presences
+        result["D"] = average_detections
+        result["M"] = average_measurements
         return OrderedDict({self.name: result})
 
     def print_result(func):
