@@ -11,7 +11,12 @@ import numpy as np
 
 
 def compare(
-    cfg, set="_test", filterAnnotation=None, filterOutput=None, random=None, scale=0.5
+    cfg=None,
+    set="_test",
+    filterAnnotation=None,
+    filterOutput=None,
+    random=None,
+    scale=0.5,
 ):
     if cfg is None:
         cfg = get_cfg(find_outputn())

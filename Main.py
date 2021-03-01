@@ -12,7 +12,6 @@ def get_cfg(
     outputn,
     model="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
     iterations=1000,
-    output_dir=None,
 ):
     dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
     cfg = get_default()
@@ -41,6 +40,7 @@ def get_cfg(
 
 
 def find_outputn():
+    """Gives latest outputn"""
     outputn = 0
     while os.path.exists(
         "/content/outputs/"
@@ -48,7 +48,7 @@ def find_outputn():
         + str(outputn)
     ):
         outputn += 1
-    return outputn
+    return outputn - 1
 
 
 def train(
@@ -61,7 +61,7 @@ def train(
     overwrite=False,
 ):
     if cfg is None:
-        cfg = get_cfg(find_outputn())
+        cfg = get_cfg(find_outputn() + 1)
     if not iterations is None:
         cfg.SOLVER.MAX_ITER = iterations
     trainer = CustomTrainer(cfg)
@@ -85,7 +85,7 @@ def train(
 
 def evaluate(cfg=None, trainer=None, classes=None):
     if cfg is None:
-        cfg = get_cfg(find_outputn() - 1)
+        cfg = get_cfg(find_outputn())
     dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
     if classes is None:
         classes = CustomTrainer.classes()
