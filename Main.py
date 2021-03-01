@@ -63,7 +63,7 @@ def train(
     if cfg is None:
         cfg = get_cfg(find_outputn())
     if not iterations is None:
-        cfg.MAX_ITER = iterations
+        cfg.SOLVER.MAX_ITER = iterations
     trainer = CustomTrainer(cfg)
     trainer.resume_or_load(resume=resume)
     trainer.train()
