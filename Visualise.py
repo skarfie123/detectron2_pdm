@@ -8,6 +8,7 @@ from detectron2_pdm.Main import get_cfg, find_outputn
 from detectron2_pdm.CustomTrainer import CustomTrainer
 import random as rnd
 import numpy as np
+import os
 
 
 def compare(
@@ -17,9 +18,12 @@ def compare(
     filterOutput=None,
     random=None,
     scale=0.5,
+    threshold=0.7,
 ):
     if cfg is None:
         cfg = get_cfg(find_outputn())
+        cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
     dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
     predictor = DefaultPredictor(cfg)
     dataset_dicts = DatasetCatalog.get(dataset + set)
