@@ -31,23 +31,24 @@ def get_cfg(
         cfg.OUTPUT_DIR = outputn
     else:
         cfg.OUTPUT_DIR = (
-            "./outputs/" + ("vertical" if CustomTrainer.vNotG else "ground") + str(outputn)
+            "./outputs/"
+            + ("vertical" if CustomTrainer.vNotG else "ground")
+            + str(outputn)
         )
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
     return cfg
 
 
-outputk = 0
-
-
-def find_outputk():
+def find_outputn():
+    outputn = 0
     while os.path.exists(
         "/content/outputs/"
         + ("vertical" if CustomTrainer.vNotG else "ground")
-        + str(outputk)
+        + str(outputn)
     ):
-        outputk += 1
+        outputn += 1
+    return outputn
 
 
 def train(
@@ -60,8 +61,7 @@ def train(
     overwrite=False,
 ):
     if cfg is None:
-        find_outputk()
-        cfg = get_cfg(outputk)
+        cfg = get_cfg(find_outputn())
     if not iterations is None:
         cfg.MAX_ITER = iterations
     trainer = CustomTrainer(cfg)
@@ -71,6 +71,7 @@ def train(
     if evaluation:
         evaluate(cfg, trainer, classes)
 
+    # TODO: do something better using resume
     if save and (
         overwrite
         or not os.exists(
@@ -84,8 +85,7 @@ def train(
 
 def evaluate(cfg=None, trainer=None, classes=None):
     if cfg is None:
-        find_outputk()
-        cfg = get_cfg(outputk - 1)
+        cfg = get_cfg(find_outputn() - 1)
     dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
     if classes is None:
         classes = CustomTrainer.classes()

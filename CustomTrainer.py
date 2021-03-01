@@ -7,7 +7,7 @@ import os
 class CustomTrainer(DefaultTrainer):
     vNotG = True
     vClasses = [1, 2, 3, 4]
-    gClasses = [0, 1, 2, 3, 4, 5, 6]  # TODO find classes for ground
+    gClasses = [0, 3, 4, 5, 6]
 
     @classmethod
     def classes(cls):
