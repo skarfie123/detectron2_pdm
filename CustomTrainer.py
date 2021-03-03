@@ -8,8 +8,15 @@ from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
 
 class CustomTrainer(DefaultTrainer):
     vNotG = True
+    
     vClasses = [1, 2, 3, 4]
     gClasses = [0, 3, 4, 5, 6]
+
+    vNum = 6
+    gNum = 7
+
+    vDataset = "vertical_300"
+    gDataset = "ground_200"
 
     @classmethod
     def classes(cls):
@@ -17,7 +24,11 @@ class CustomTrainer(DefaultTrainer):
 
     @classmethod
     def dataset(cls):
-        return "vertical_300" if cls.vNotG else "ground_200"
+        return cls.vDataset if cls.vNotG else cls.gDataset
+
+    @classmethod
+    def num_classes(cls):
+        return cls.vNum if cls.vNotG else cls.gNum
 
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):

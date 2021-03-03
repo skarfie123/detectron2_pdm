@@ -27,7 +27,7 @@ def get_cfg(
     cfg.SOLVER.BASE_LR = 0.00025
     cfg.SOLVER.MAX_ITER = iterations
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 6 if CustomTrainer.vNotG else 7
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomTrainer.num_classes()
     if isinstance(outputn, str):
         cfg.OUTPUT_DIR = outputn
     else:
@@ -81,7 +81,7 @@ def train(
         )
     ):
         os.system(
-            f"cp -r /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]}/* /content/gdrive/My\\ Drive/4YP\\ Output/detectron/{cfg.OUTPUT_DIR.split('/')[-1]}/"
+            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron/{cfg.OUTPUT_DIR.split('/')[-1]}"
         )
 
 
