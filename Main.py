@@ -60,7 +60,6 @@ def train(
     classes=None,
     resume=True,
     save=False,
-    overwrite=False,
 ):
     if cfg is None:
         cfg = get_cfg(find_outputn() + 1)
@@ -75,7 +74,7 @@ def train(
 
     # TODO: do something better using resume
     if save and (
-        overwrite
+        resume
         or not os.exists(
             f"/content/gdrive/My\\ Drive/4YP\\ Output/detectron/{cfg.OUTPUT_DIR.split('/')[-1]}/"
         )
