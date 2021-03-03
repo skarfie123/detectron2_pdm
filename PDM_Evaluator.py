@@ -161,7 +161,9 @@ class PDM_Evaluator(DatasetEvaluator):
                 sum_presences += Presence[classNames[c]]
             except ZeroDivisionError:
                 Presence[classNames[c]] = 0
-            for metric in self.detections[c][0]:
+            if len(self.detections[c]) == 0:
+                continue
+            for metric in sum_detections:
                 try:
                     Detection[f"{classNames[c]}: {metric}"] = sum(
                         d[metric] for d in self.detections[c]
@@ -169,7 +171,9 @@ class PDM_Evaluator(DatasetEvaluator):
                     sum_detections[metric] += Detection[f"{classNames[c]}: {metric}"]
                 except ZeroDivisionError:
                     Detection[f"{classNames[c]}: {metric}"] = 0
-            for metric in self.measurements[c][0]:
+            if len(self.measurements[c]) == 0:
+                continue
+            for metric in sum_measurements:
                 try:
                     Measurement[f"{classNames[c]}: {metric}"] = sum(
                         m[metric] for m in self.measurements[c]
