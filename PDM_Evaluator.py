@@ -264,12 +264,12 @@ class PDM_Evaluator(DatasetEvaluator):
 
                 # improve minimum
                 if min(AiPj, AjPi) < min(AiPi, AjPj):
-                    pairs[i][1], pairs[j][1] = pairs[j][1], pairs[i][1]
+                    pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (pairs[j][0], pairs[i][1])
                     swaps += 1
                 elif min(AiPj, AjPi) == min(AiPi, AjPj):
                     # improve maximum if minimum conserved
                     if max(AiPj, AjPi) < max(AiPi, AjPj):
-                        pairs[i][1], pairs[j][1] = pairs[j][1], pairs[i][1]
+                        pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (pairs[j][0], pairs[i][1])
                         swaps += 1
         # print(pairs)
         # print(swaps)
