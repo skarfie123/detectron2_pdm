@@ -80,7 +80,7 @@ def train(
         )
     ):
         os.system(
-            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron/{cfg.OUTPUT_DIR.split('/')[-1]}"
+            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron"
         )
 
 
