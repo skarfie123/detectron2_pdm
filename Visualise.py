@@ -28,7 +28,7 @@ def compare(
         cfg = get_cfg(outputn)
         cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
-    dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
+    dataset = CustomTrainer.dataset()
     predictor = DefaultPredictor(cfg)
     dataset_dicts = DatasetCatalog.get(dataset + set)
     if random is not None:

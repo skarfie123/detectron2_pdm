@@ -16,6 +16,10 @@ class CustomTrainer(DefaultTrainer):
         return cls.vClasses if cls.vNotG else cls.gClasses
 
     @classmethod
+    def dataset(cls):
+        return "vertical_200" if cls.vNotG else "ground_200"
+
+    @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
         if output_folder is None:
             output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")

@@ -16,7 +16,7 @@ def get_cfg(
     model="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
     iterations=1000,
 ):
-    dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
+    dataset = CustomTrainer.dataset()
     cfg = get_default()
     cfg.merge_from_file(model_zoo.get_config_file(model))
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model)
@@ -89,7 +89,7 @@ def train(
 def evaluate(cfg=None, trainer=None, classes=None):
     if cfg is None:
         cfg = get_cfg(find_outputn())
-    dataset = "vertical_200" if CustomTrainer.vNotG else "ground_200"
+    dataset = CustomTrainer.dataset()
     if classes is None:
         classes = CustomTrainer.classes()
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")

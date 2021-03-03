@@ -69,15 +69,22 @@ class PDM_Evaluator(DatasetEvaluator):
                 else:
                     fp += 1
                     fn += 1
-            precision = tp / (tp + fp)
-            recall = tp / (tp + fn)
-            f1 = 2 * precision * recall / (precision + recall)
+            try:
+                precision = tp / (tp + fp)
+                recall = tp / (tp + fn)
+                f1 = 2 * precision * recall / (precision + recall)
+                se = sum(distances) / len(distances)
+            except ZeroDivisionError:
+                precision = 0
+                recall = 0
+                f1 = 0
+                se = 0
             self.detections[c].append(
                 {
                     "Precision": precision,
                     "Recall": recall,
                     "F1": f1,
-                    "Spatial Error": np.mean(distances),
+                    "Spatial Error": se,
                 }
             )
             # Measurement
@@ -101,16 +108,25 @@ class PDM_Evaluator(DatasetEvaluator):
                 else:
                     fp += 1
                     fn += 1
-            precision = tp / (tp + fp)
-            recall = tp / (tp + fn)
-            f1 = 2 * precision * recall / (precision + recall)
+            try:
+                precision = tp / (tp + fp)
+                recall = tp / (tp + fn)
+                f1 = 2 * precision * recall / (precision + recall)
+                se = sum(distances) / len(distances)
+                iou = sum(IoUs) / len(IoUs)
+            except ZeroDivisionError:
+                precision = 0
+                recall = 0
+                f1 = 0
+                se = 0
+                iou = 0
             self.measurements[c].append(
                 {
                     "Precision": precision,
                     "Recall": recall,
                     "F1": f1,
-                    "Spatial Error": np.mean(distances),
-                    "IoU": np.mean(IoUs),
+                    "Spatial Error": se,
+                    "IoU": iou,
                 }
             )
         if not len(outputs + inputs) == 2:
@@ -126,7 +142,6 @@ class PDM_Evaluator(DatasetEvaluator):
         sum_detections = {}
         sum_measurements = {}
         classNames = MetadataCatalog.get(self.datasetName).thing_classes
-        # TODO reorganise output format
         for c in self.classes:
             try:
                 Presence[classNames[c]] = sum(self.presences[c]) / len(
