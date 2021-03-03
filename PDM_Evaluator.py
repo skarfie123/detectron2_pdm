@@ -101,7 +101,7 @@ class PDM_Evaluator(DatasetEvaluator):
                     a_mask = self.convert_polygon(
                         annotations[pair[0]]["segmentation"][0]
                     )
-                    p_mask = predictions.pred_masks[pair[1]]
+                    p_mask = predictions.pred_masks[pair[1]].cpu().numpy()
                     intersection = np.sum(np.logical_and(a_mask, p_mask))
                     union = np.sum(np.logical_or(a_mask, p_mask))
                     IoUs.append(intersection / union)
@@ -139,8 +139,19 @@ class PDM_Evaluator(DatasetEvaluator):
         Detection = {}
         Measurement = {}
         sum_presences = 0
-        sum_detections = {}
-        sum_measurements = {}
+        sum_detections = {
+            "Precision": 0,
+            "Recall": 0,
+            "F1": 0,
+            "Spatial Error": 0,
+        }
+        sum_measurements = {
+            "Precision": 0,
+            "Recall": 0,
+            "F1": 0,
+            "Spatial Error": 0,
+            "IoU": 0,
+        }
         classNames = MetadataCatalog.get(self.datasetName).thing_classes
         for c in self.classes:
             try:
@@ -222,7 +233,7 @@ class PDM_Evaluator(DatasetEvaluator):
         return cls.distance(a_centre, p_centre)
 
     @classmethod
-    @print_result
+    # @print_result
     def match_pairs(cls, annotations, predictions):
         """Match pairs by allocating closest prediction to each annotation"""
         Na = len(annotations)
