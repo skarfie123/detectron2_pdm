@@ -4,8 +4,7 @@ from detectron2 import model_zoo
 from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
 from detectron2.engine import DefaultPredictor
-from detectron2.evaluation import (COCOEvaluator, DatasetEvaluators,
-                                   inference_on_dataset)
+from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
 
 from detectron2_pdm.CustomTrainer import CustomTrainer
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
@@ -86,7 +85,7 @@ def train(
         )
 
 
-def evaluate(cfg=None, trainer=None, classes=None):
+def evaluate(cfg=None, trainer=None, classes=None, set="_test"):
     if cfg is None:
         cfg = get_cfg(find_outputn())
     dataset = CustomTrainer.dataset()
@@ -101,15 +100,15 @@ def evaluate(cfg=None, trainer=None, classes=None):
     evaluator = DatasetEvaluators(
         [
             COCOEvaluator(
-                dataset + "_test",
+                dataset + set,
                 ("bbox", "segm"),
                 False,
                 output_dir=cfg.OUTPUT_DIR + "/coco_eval_test",
             ),
-            PDM_Evaluator(dataset + "_test", classes),
+            PDM_Evaluator(dataset + set, classes),
         ]
     )
-    test_loader = build_detection_test_loader(cfg, dataset + "_test")
+    test_loader = build_detection_test_loader(cfg, dataset + set)
     print(
         f"{cfg.OUTPUT_DIR.split('/')[-1]}={inference_on_dataset(trainer.model, test_loader, evaluator)}"
     )

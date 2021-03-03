@@ -184,9 +184,9 @@ class PDM_Evaluator(DatasetEvaluator):
                 except ZeroDivisionError:
                     Measurement[f"{classNames[c]}: {metric}"] = 0
         Presence["Average"] = sum_presences / len(self.classes)
-        for metric in self.detections[c][0]:
+        for metric in sum_detections:
             Detection[f"Average: {metric}"] = sum_detections[metric] / len(self.classes)
-        for metric in self.measurements[c][0]:
+        for metric in sum_measurements:
             Measurement[f"Average: {metric}"] = sum_measurements[metric] / len(
                 self.classes
             )
