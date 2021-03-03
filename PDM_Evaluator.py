@@ -199,6 +199,8 @@ class PDM_Evaluator(DatasetEvaluator):
         x, y = x.flatten(), y.flatten()
 
         points = np.vstack((x, y)).T
+        if isinstance(polygon, list):
+            polygon = np.array(polygon)
         path = Path(polygon.reshape(-1, 2))
         grid = path.contains_points(points)
         grid = grid.reshape((height, width))
@@ -264,12 +266,18 @@ class PDM_Evaluator(DatasetEvaluator):
 
                 # improve minimum
                 if min(AiPj, AjPi) < min(AiPi, AjPj):
-                    pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (pairs[j][0], pairs[i][1])
+                    pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (
+                        pairs[j][0],
+                        pairs[i][1],
+                    )
                     swaps += 1
                 elif min(AiPj, AjPi) == min(AiPi, AjPj):
                     # improve maximum if minimum conserved
                     if max(AiPj, AjPi) < max(AiPi, AjPj):
-                        pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (pairs[j][0], pairs[i][1])
+                        pairs[i], pairs[j] = (pairs[i][0], pairs[j][1]), (
+                            pairs[j][0],
+                            pairs[i][1],
+                        )
                         swaps += 1
         # print(pairs)
         # print(swaps)
