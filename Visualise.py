@@ -73,7 +73,7 @@ def compare(
 
             visualizer = Visualizer(
                 im[:, :, ::-1],
-                metadata=MetadataCatalog.get("vertical_200_train"),
+                metadata=MetadataCatalog.get(dataset + set),
                 scale=scale,
             )
             out2 = visualizer.draw_dataset_dict(d)

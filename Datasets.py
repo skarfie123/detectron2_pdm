@@ -25,13 +25,13 @@ def downloadVertical():
         shell=True,
     )
     subprocess.call(
-        "cp /content/gdrive/MyDrive/Share/4YPDatasets/vertical_200_annotations.zip /content/",
+        "cp /content/gdrive/MyDrive/Share/4YPDatasets/vertical_300_annotations.zip /content/",
         shell=True,
     )
     subprocess.call("unzip mask_vertical.zip > /dev/null", shell=True)
     subprocess.call("mkdir mask_vertical", shell=True)
     subprocess.call("mv img* mask_vertical/", shell=True)
-    subprocess.call("unzip vertical_200_annotations.zip > /dev/null", shell=True)
+    subprocess.call("unzip vertical_300_annotations.zip > /dev/null", shell=True)
 
 
 def registerGround():
@@ -55,20 +55,20 @@ def registerVertical():
     if not os.path.exists("/content/mask_vertical/"):
         downloadVertical()
     register_coco_instances(
-        "vertical_200_train",
+        "vertical_300_train",
         {},
-        "/content/vertical_200_train.json",
+        "/content/vertical_300_train.json",
         "/content/mask_vertical/",
     )
     register_coco_instances(
-        "vertical_200_val",
+        "vertical_300_val",
         {},
-        "/content/vertical_200_val.json",
+        "/content/vertical_300_val.json",
         "/content/mask_vertical/",
     )
     register_coco_instances(
-        "vertical_200_test",
+        "vertical_300_test",
         {},
-        "/content/vertical_200_test.json",
+        "/content/vertical_300_test.json",
         "/content/mask_vertical/",
     )

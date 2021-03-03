@@ -17,7 +17,7 @@ class CustomTrainer(DefaultTrainer):
 
     @classmethod
     def dataset(cls):
-        return "vertical_200" if cls.vNotG else "ground_200"
+        return "vertical_300" if cls.vNotG else "ground_200"
 
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
