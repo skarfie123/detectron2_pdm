@@ -1,11 +1,14 @@
 import os
+
 from detectron2 import model_zoo
 from detectron2.config import get_cfg as get_default
+from detectron2.data import build_detection_test_loader
 from detectron2.engine import DefaultPredictor
-from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
+from detectron2.evaluation import (COCOEvaluator, DatasetEvaluators,
+                                   inference_on_dataset)
+
 from detectron2_pdm.CustomTrainer import CustomTrainer
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
-from detectron2.data import build_detection_test_loader
 
 
 def get_cfg(

@@ -1,14 +1,15 @@
-from detectron2.utils.visualizer import ColorMode
-from detectron2.utils.visualizer import Visualizer
-from detectron2.data import MetadataCatalog, DatasetCatalog
-from detectron2.engine import DefaultPredictor
-from google.colab.patches import cv2_imshow
-import cv2
-from detectron2_pdm.Main import get_cfg, find_outputn
-from detectron2_pdm.CustomTrainer import CustomTrainer
-import random as rnd
-import numpy as np
 import os
+import random as rnd
+
+import cv2
+import numpy as np
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.engine import DefaultPredictor
+from detectron2.utils.visualizer import ColorMode, Visualizer
+from google.colab.patches import cv2_imshow
+
+from detectron2_pdm.CustomTrainer import CustomTrainer
+from detectron2_pdm.Main import find_outputn, get_cfg
 
 
 def compare(

@@ -1,7 +1,9 @@
+import os
+
 from detectron2.engine import DefaultTrainer
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators
+
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
-import os
 
 
 class CustomTrainer(DefaultTrainer):
