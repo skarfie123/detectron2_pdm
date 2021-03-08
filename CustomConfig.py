@@ -17,7 +17,12 @@ class CustomConfig(metaclass=MustSet):
 
     @classmethod
     def set(
-        cls, category: bool, imageset: str, dataset: str, numClasses: int, pdmClasses: list
+        cls,
+        category: str,
+        imageset: str,
+        dataset: str,
+        numClasses: int,
+        pdmClasses: list,
     ):
         cls.category = category
         cls.imageset = imageset
