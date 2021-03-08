@@ -8,7 +8,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import ColorMode, Visualizer
 from google.colab.patches import cv2_imshow
 
-from detectron2_pdm.CustomTrainer import CustomTrainer
+from detectron2_pdm.CustomConfig import CustomConfig
 from detectron2_pdm.Main import find_outputn, get_cfg
 
 
@@ -28,7 +28,7 @@ def compare(
         cfg = get_cfg(outputn)
         cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
-    dataset = CustomTrainer.dataset()
+    dataset = CustomConfig.dataset
     predictor = DefaultPredictor(cfg)
     dataset_dicts = DatasetCatalog.get(dataset + set)
     if random is not None:

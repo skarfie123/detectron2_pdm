@@ -1,2 +1,5 @@
 /env
 ignore*
+*.json
+*.zip
+*.cmd

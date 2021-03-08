@@ -33,6 +33,9 @@ class PDM_Evaluator(DatasetEvaluator):
             predictions = instances[instances.pred_classes == c]
             annotations = [item for item in all_annotations if item["category_id"] == c]
             # Presence
+            # tn len(annotations) == 0 and len(predictions) == 0) or (
+            # tp len(annotations) > 0 and len(predictions) > 0
+                #tp / (tp + fp + fn + tn) # generality
             if (len(annotations) == 0 and len(predictions) == 0) or (
                 len(annotations) > 0 and len(predictions) > 0
             ):

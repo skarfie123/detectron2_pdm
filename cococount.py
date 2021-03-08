@@ -1,5 +1,6 @@
 import json
 import argparse
+import glob
 
 parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
 parser.add_argument(
@@ -14,6 +15,8 @@ args = parser.parse_args()
 
 
 def main(args):
+    if len(args.annotations) == 1:
+        args.annotations = glob.glob(args.annotations[0])
     for ann in args.annotations:
         with open(ann, "rt", encoding="UTF-8") as annotations:
             coco = json.load(annotations)
@@ -33,7 +36,7 @@ def main(args):
             for a in annotations:
                 counts[labels[a["category_id"]]] += 1
 
-            print(ann, counts, sep="\t")
+            print(ann, sum(counts.values()), counts, sep="\t")
 
 
 if __name__ == "__main__":

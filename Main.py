@@ -3,9 +3,9 @@ import os
 from detectron2 import model_zoo
 from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
-from detectron2.engine import DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
 
+from detectron2_pdm.CustomConfig import CustomConfig
 from detectron2_pdm.CustomTrainer import CustomTrainer
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
 
@@ -15,7 +15,7 @@ def get_cfg(
     model="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
     iterations=1000,
 ):
-    dataset = CustomTrainer.dataset()
+    dataset = CustomConfig.dataset
     cfg = get_default()
     cfg.merge_from_file(model_zoo.get_config_file(model))
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model)
@@ -27,14 +27,12 @@ def get_cfg(
     cfg.SOLVER.BASE_LR = 0.00025
     cfg.SOLVER.MAX_ITER = iterations
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomTrainer.num_classes()
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomConfig.numClasses
     if isinstance(outputn, str):
         cfg.OUTPUT_DIR = outputn
     else:
         cfg.OUTPUT_DIR = (
-            "./outputs/"
-            + ("vertical" if CustomTrainer.vNotG else "ground")
-            + str(outputn)
+            f"./outputs/{CustomConfig.category}{outputn}"
         )
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
@@ -45,9 +43,7 @@ def find_outputn():
     """Gives latest outputn"""
     outputn = 0
     while os.path.exists(
-        "/content/outputs/"
-        + ("vertical" if CustomTrainer.vNotG else "ground")
-        + str(outputn)
+        f"/content/outputs/{CustomConfig.category}{outputn}"
     ):
         outputn += 1
     return outputn - 1
@@ -72,7 +68,6 @@ def train(
     if evaluation:
         evaluate(cfg, trainer, classes)
 
-    # TODO: do something better using resume
     if save and (
         resume
         or not os.exists(
@@ -82,16 +77,18 @@ def train(
         os.system(
             f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron"
         )
+    elif save:
+        print("Warning: folder exists, did not save to Drive (did you forget to set resume=True?)")
 
 
-def evaluate(cfg=None, trainer=None, classes=None, set="_test"):
+def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7):
     if cfg is None:
         cfg = get_cfg(find_outputn())
-    dataset = CustomTrainer.dataset()
-    if classes is None:
-        classes = CustomTrainer.classes()
+    dataset = CustomConfig.dataset
+    if pdmClasses is None:
+        pdmClasses = CustomConfig.pdmClasses
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7  # set a custom testing threshold
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
     if trainer is None:
         trainer = CustomTrainer(cfg)
         trainer.resume_or_load(resume=False)
@@ -104,7 +101,7 @@ def evaluate(cfg=None, trainer=None, classes=None, set="_test"):
                 False,
                 output_dir=cfg.OUTPUT_DIR + "/coco_eval_test",
             ),
-            PDM_Evaluator(dataset + set, classes),
+            PDM_Evaluator(dataset + set, pdmClasses),
         ]
     )
     test_loader = build_detection_test_loader(cfg, dataset + set)
