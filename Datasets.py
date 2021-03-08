@@ -26,18 +26,18 @@ def register(imageset, dataset):
     register_coco_instances(
         f"{dataset}_train",
         {},
-        f"/content/{dataset}_train.json",
+        f"/content/{dataset}/{dataset}_train.json",
         f"/content/{imageset}/",
     )
     register_coco_instances(
         f"{dataset}_val",
         {},
-        f"/content/{dataset}_val.json",
+        f"/content/{dataset}/{dataset}_val.json",
         f"/content/{imageset}/",
     )
     register_coco_instances(
         f"{dataset}_test",
         {},
-        f"/content/{dataset}_test.json",
+        f"/content/{dataset}/{dataset}_test.json",
         f"/content/{imageset}/",
     )
