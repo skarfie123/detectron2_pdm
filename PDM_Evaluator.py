@@ -75,7 +75,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 )
                 if distance < DETECTION_DISTANCE_THRESHOLD:
                     tp += 1
-                    se_sum += distance / np.min(annotations[pair[0]][2:])
+                    se_sum += distance / min(annotations[pair[0]][2], annotations[pair[0]][3])
                     pairs2.append(
                         (pair[0], pair[1], distance)
                     )  ## use only these for the Measurement stage
@@ -111,7 +111,7 @@ class PDM_Evaluator(DatasetEvaluator):
             for pair in pairs2:
                 if pair[2] < MEASUREMENT_DISTANCE_THRESHOLD:
                     tp += 1
-                    se_sum += pair[2] / np.min(annotations[pair[0]][2:])
+                    se_sum += pair[2] / min(annotations[pair[0]][2], annotations[pair[0]][3])
                     a_mask = self.convert_polygon(
                         annotations[pair[0]]["segmentation"][0]
                     )
