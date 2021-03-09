@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.datasets import register_coco_instances
 
 
@@ -23,21 +24,29 @@ def download(imageset, dataset):
 
 def register(imageset, dataset):
     download(imageset, dataset)
-    register_coco_instances(
-        f"{dataset}_train",
-        {},
-        f"/content/{dataset}/{dataset}_train.json",
-        f"/content/{imageset}/",
-    )
-    register_coco_instances(
-        f"{dataset}_val",
-        {},
-        f"/content/{dataset}/{dataset}_val.json",
-        f"/content/{imageset}/",
-    )
-    register_coco_instances(
-        f"{dataset}_test",
-        {},
-        f"/content/{dataset}/{dataset}_test.json",
-        f"/content/{imageset}/",
-    )
+    try:
+        register_coco_instances(
+            f"{dataset}_train",
+            {},
+            f"/content/{dataset}/{dataset}_train.json",
+            f"/content/{imageset}/",
+        )
+        register_coco_instances(
+            f"{dataset}_val",
+            {},
+            f"/content/{dataset}/{dataset}_val.json",
+            f"/content/{imageset}/",
+        )
+        register_coco_instances(
+            f"{dataset}_test",
+            {},
+            f"/content/{dataset}/{dataset}_test.json",
+            f"/content/{imageset}/",
+        )
+    except AssertionError:
+        print("Dataset already registered")
+
+
+def clear():
+    DatasetCatalog.clear()
+    MetadataCatalog.clear()
