@@ -35,7 +35,7 @@ class PDM_Evaluator(DatasetEvaluator):
             # Presence
             # tn len(annotations) == 0 and len(predictions) == 0) or (
             # tp len(annotations) > 0 and len(predictions) > 0
-                #tp / (tp + fp + fn + tn) # generality
+            # tp / (tp + fp + fn + tn) # generality
             if (len(annotations) == 0 and len(predictions) == 0) or (
                 len(annotations) > 0 and len(predictions) > 0
             ):
@@ -86,7 +86,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 precision = tp / (tp + fp)
                 recall = tp / (tp + fn)
                 f1 = 2 * precision * recall / (precision + recall)
-                se = se_sum / distance
+                se = 100 * se_sum / tp
             except ZeroDivisionError:
                 precision = 0
                 recall = 0
@@ -97,7 +97,7 @@ class PDM_Evaluator(DatasetEvaluator):
                     "Precision": precision,
                     "Recall": recall,
                     "F1": f1,
-                    "Spatial Error": se,
+                    "Spatial Error %": se,
                 }
             )
             # Measurement
@@ -126,7 +126,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 precision = tp / (tp + fp)
                 recall = tp / (tp + fn)
                 f1 = 2 * precision * recall / (precision + recall)
-                se = se_sum / tp
+                se = 100 * se_sum / tp
                 iou = iou_sum / tp
             except ZeroDivisionError:
                 precision = 0
@@ -139,7 +139,7 @@ class PDM_Evaluator(DatasetEvaluator):
                     "Precision": precision,
                     "Recall": recall,
                     "F1": f1,
-                    "Spatial Error": se,
+                    "Spatial Error %": se,
                     "IoU": iou,
                 }
             )
@@ -160,13 +160,13 @@ class PDM_Evaluator(DatasetEvaluator):
             "Precision": 0,
             "Recall": 0,
             "F1": 0,
-            "Spatial Error": 0,
+            "Spatial Error %": 0,
         }
         sum_measurements = {
             "Precision": 0,
             "Recall": 0,
             "F1": 0,
-            "Spatial Error": 0,
+            "Spatial Error %": 0,
             "IoU": 0,
         }
         classNames = MetadataCatalog.get(self.datasetName).thing_classes
