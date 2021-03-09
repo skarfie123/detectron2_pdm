@@ -75,7 +75,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 )
                 if distance < DETECTION_DISTANCE_THRESHOLD:
                     tp += 1
-                    se_sum += distance / min(annotations[pair[0]][2], annotations[pair[0]][3])
+                    se_sum += distance / min(annotations[pair[0]]["bbox"][2:])
                     pairs2.append(
                         (pair[0], pair[1], distance)
                     )  ## use only these for the Measurement stage
@@ -111,7 +111,7 @@ class PDM_Evaluator(DatasetEvaluator):
             for pair in pairs2:
                 if pair[2] < MEASUREMENT_DISTANCE_THRESHOLD:
                     tp += 1
-                    se_sum += pair[2] / min(annotations[pair[0]][2], annotations[pair[0]][3])
+                    se_sum += pair[2] / min(annotations[pair[0]]["bbox"][2:])
                     a_mask = self.convert_polygon(
                         annotations[pair[0]]["segmentation"][0]
                     )
@@ -204,7 +204,8 @@ class PDM_Evaluator(DatasetEvaluator):
                     ]
                 except ZeroDivisionError:
                     Measurement[f"{classNames[c]}: {metric}"] = 0
-        Presence["Average"] = sum_presences / len(self.classes)
+        for metric in sum_presences:
+            Presence[f"Average: {metric}"] = sum_presences[metric] / len(self.classes)
         for metric in sum_detections:
             Detection[f"Average: {metric}"] = sum_detections[metric] / len(self.classes)
         for metric in sum_measurements:
