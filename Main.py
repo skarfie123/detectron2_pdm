@@ -26,14 +26,13 @@ def get_cfg(
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025
     cfg.SOLVER.MAX_ITER = iterations
+    cfg.SOLVER.CHECKPOINT_PERIOD = 3000
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomConfig.numClasses
     if isinstance(outputn, str):
         cfg.OUTPUT_DIR = outputn
     else:
-        cfg.OUTPUT_DIR = (
-            f"./outputs/{CustomConfig.category}{outputn}"
-        )
+        cfg.OUTPUT_DIR = f"./outputs/{CustomConfig.category}{outputn}"
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
     return cfg
@@ -42,9 +41,7 @@ def get_cfg(
 def find_outputn():
     """Gives latest outputn"""
     outputn = 0
-    while os.path.exists(
-        f"/content/outputs/{CustomConfig.category}{outputn}"
-    ):
+    while os.path.exists(f"/content/outputs/{CustomConfig.category}{outputn}"):
         outputn += 1
     return outputn - 1
 
@@ -78,7 +75,9 @@ def train(
             f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron"
         )
     elif save:
-        print("Warning: folder exists, did not save to Drive (did you forget to set resume=True?)")
+        print(
+            "Warning: folder exists, did not save to Drive (did you forget to set resume=True?)"
+        )
 
 
 def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7):
@@ -106,5 +105,5 @@ def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7
     )
     test_loader = build_detection_test_loader(cfg, dataset + set)
     print(
-        f"{cfg.OUTPUT_DIR.split('/')[-1]}={inference_on_dataset(trainer.model, test_loader, evaluator)}"
+        f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {inference_on_dataset(trainer.model, test_loader, evaluator)}"
     )
