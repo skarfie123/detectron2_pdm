@@ -39,9 +39,19 @@ class PDM_Evaluator(DatasetEvaluator):
             if (len(annotations) == 0 and len(predictions) == 0) or (
                 len(annotations) > 0 and len(predictions) > 0
             ):
-                self.presences[c].append(1)
+                presence = 1
             else:
-                self.presences[c].append(0)
+                presence = 0
+            if len(annotations) > 0:
+                generality = 1
+            else:
+                generality = 0
+            self.presences[c].append(
+                {
+                    "Presence": presence,
+                    "Generality": generality,
+                }
+            )
             # Detection
             pairs = self.match_pairs(annotations, predictions)
             if len(pairs) == 0:
@@ -50,7 +60,7 @@ class PDM_Evaluator(DatasetEvaluator):
             tp = 0
             fp = 0
             fn = 0
-            distances = []
+            se_sum = 0
             DETECTION_DISTANCE_THRESHOLD = 150  # XXX: parameter
             """ each pair is (a_index, p_index) """
             for pair in pairs:
@@ -65,10 +75,10 @@ class PDM_Evaluator(DatasetEvaluator):
                 )
                 if distance < DETECTION_DISTANCE_THRESHOLD:
                     tp += 1
-                    distances.append(distance)  # TODO append for tp or all?
+                    se_sum += distance / np.min(annotations[pair[0]][2, 3])
                     pairs2.append(
                         (pair[0], pair[1], distance)
-                    )  ## use only these for measurement
+                    )  ## use only these for the Measurement stage
                 else:
                     fp += 1
                     fn += 1
@@ -76,7 +86,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 precision = tp / (tp + fp)
                 recall = tp / (tp + fn)
                 f1 = 2 * precision * recall / (precision + recall)
-                se = sum(distances) / len(distances)
+                se = se_sum / distance
             except ZeroDivisionError:
                 precision = 0
                 recall = 0
@@ -94,20 +104,21 @@ class PDM_Evaluator(DatasetEvaluator):
             if len(pairs2) == 0:
                 continue  # don't score measurement if none were TP
             tp = 0  # now count TP with stricter requirements
-            distances = []
-            IoUs = []
+            se_sum = 0
+            iou_sum = 0
             MEASUREMENT_DISTANCE_THRESHOLD = 50  # XXX: parameter
+            # note pair is actually a triplet now, including the distances we calculated during the Detection stage
             for pair in pairs2:
                 if pair[2] < MEASUREMENT_DISTANCE_THRESHOLD:
                     tp += 1
-                    distances.append(pair[2])  # TODO append for tp or all?
+                    se_sum += pair[2] / np.min(annotations[pair[0]][2, 3])
                     a_mask = self.convert_polygon(
                         annotations[pair[0]]["segmentation"][0]
                     )
                     p_mask = predictions.pred_masks[pair[1]].cpu().numpy()
                     intersection = np.sum(np.logical_and(a_mask, p_mask))
                     union = np.sum(np.logical_or(a_mask, p_mask))
-                    IoUs.append(intersection / union)
+                    iou_sum += intersection / union
                 else:
                     fp += 1
                     fn += 1
@@ -115,8 +126,8 @@ class PDM_Evaluator(DatasetEvaluator):
                 precision = tp / (tp + fp)
                 recall = tp / (tp + fn)
                 f1 = 2 * precision * recall / (precision + recall)
-                se = sum(distances) / len(distances)
-                iou = sum(IoUs) / len(IoUs)
+                se = se_sum / tp
+                iou = iou_sum / tp
             except ZeroDivisionError:
                 precision = 0
                 recall = 0
@@ -141,7 +152,10 @@ class PDM_Evaluator(DatasetEvaluator):
         Presence = {}
         Detection = {}
         Measurement = {}
-        sum_presences = 0
+        sum_presences = {
+            "Presence": 0,
+            "Generality": 0,
+        }
         sum_detections = {
             "Precision": 0,
             "Recall": 0,
@@ -157,13 +171,16 @@ class PDM_Evaluator(DatasetEvaluator):
         }
         classNames = MetadataCatalog.get(self.datasetName).thing_classes
         for c in self.classes:
-            try:
-                Presence[classNames[c]] = sum(self.presences[c]) / len(
-                    self.presences[c]
-                )
-                sum_presences += Presence[classNames[c]]
-            except ZeroDivisionError:
-                Presence[classNames[c]] = 0
+            # Presence
+            for metric in sum_presences:
+                try:
+                    Presence[f"{classNames[c]}: {metric}"] = sum(
+                        p[metric] for p in self.presences[c]
+                    ) / len(self.presences[c])
+                    sum_presences[metric] += Presence[f"{classNames[c]}: {metric}"]
+                except ZeroDivisionError:
+                    Presence[f"{classNames[c]}: {metric}"] = 0
+            # Detection
             if len(self.detections[c]) == 0:
                 continue
             for metric in sum_detections:
@@ -174,6 +191,7 @@ class PDM_Evaluator(DatasetEvaluator):
                     sum_detections[metric] += Detection[f"{classNames[c]}: {metric}"]
                 except ZeroDivisionError:
                     Detection[f"{classNames[c]}: {metric}"] = 0
+            # Measurement
             if len(self.measurements[c]) == 0:
                 continue
             for metric in sum_measurements:
@@ -251,10 +269,12 @@ class PDM_Evaluator(DatasetEvaluator):
             return [(0, 0)]  # only one permutation
         a_centres = []
         p_centres = []
+        # Annotations are [x1,y1,w,h]
         for a in annotations:
             a_centres.append(
                 (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
             )
+        # Predictions are [x1,y1,x2,y2]
         for pb in predictions.pred_boxes:
             p_centres.append(
                 ((pb[0].item() + pb[2].item()) / 2, (pb[1].item() + pb[3].item()) / 2)
