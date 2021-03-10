@@ -62,6 +62,8 @@ def train(
     trainer.resume_or_load(resume=resume)
     trainer.train()
 
+    CustomConfig.save(cfg.OUTPUT_DIR)
+
     if evaluation:
         evaluate(cfg, trainer, classes)
 

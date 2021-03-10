@@ -8,6 +8,10 @@ class MustSet(type):
         return super().__getattribute__(key)
 
 
+import os
+import json
+
+
 class CustomConfig(metaclass=MustSet):
     category = None
     imageset = None
@@ -31,3 +35,17 @@ class CustomConfig(metaclass=MustSet):
         cls.pdmClasses = pdmClasses
 
         Datasets.register(imageset, dataset)
+
+    @classmethod
+    def save(cls, output_dir="/content"):
+        with open(os.path.join(output_dir, "config.json"), "w") as outfile:
+            json.dump(
+                {
+                    "category": cls.category,
+                    "imageset": cls.imageset,
+                    "dataset": cls.dataset,
+                    "numClasses": cls.numClasses,
+                    "pdmClasses": cls.pdmClasses,
+                },
+                outfile,
+            )
