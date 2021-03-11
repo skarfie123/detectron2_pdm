@@ -35,6 +35,7 @@ def get_cfg(
         cfg.OUTPUT_DIR = f"./outputs/{CustomConfig.category}{outputn}"
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
+    CustomConfig.load(cfg.OUTPUT_DIR)
     return cfg
 
 
