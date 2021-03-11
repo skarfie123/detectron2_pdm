@@ -1,11 +1,10 @@
-from detectron2_pdm import Datasets
-
-
 class MustSet(type):
     def __getattribute__(cls, key):
         if super().__getattribute__(key) is None:
             if key in ["driveOutputs", "driveDatasets"]:
-                raise Exception("Config drive paths have not been set, driveOutputs and driveDatasets")
+                raise Exception(
+                    "Config drive paths have not been set, driveOutputs and driveDatasets"
+                )
             raise Exception("Config has not been set, use CustomConfig.set()")
         return super().__getattribute__(key)
 
@@ -39,8 +38,6 @@ class CustomConfig(metaclass=MustSet):
         cls.numClasses = numClasses
         cls.pdmClasses = pdmClasses
 
-        Datasets.register(imageset, dataset)
-
     @classmethod
     def save(cls, output_dir="/content"):
         with open(os.path.join(output_dir, "config.json"), "w") as outfile:
@@ -54,6 +51,7 @@ class CustomConfig(metaclass=MustSet):
                 },
                 outfile,
             )
+
     @classmethod
     def load(cls, output_dir="/content"):
         if not os.path.exists(os.join(output_dir, "config.json")):
