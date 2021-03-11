@@ -54,7 +54,7 @@ class CustomConfig(metaclass=MustSet):
 
     @classmethod
     def load(cls, output_dir="/content"):
-        if not os.path.exists(os.join(output_dir, "config.json")):
+        if not os.path.exists(os.path.join(output_dir, "config.json")):
             return
         with open(os.path.join(output_dir, "config.json"), "r") as infile:
             config = json.load(infile)

@@ -36,7 +36,7 @@ def main(args):
             for a in annotations:
                 counts[labels[a["category_id"]]] += 1
 
-            print(ann, sum(counts.values()), counts, sep="\t")
+            print(ann, sum(counts.values()), counts, len(images), sep="\t")
 
 
 if __name__ == "__main__":
