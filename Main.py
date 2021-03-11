@@ -5,6 +5,7 @@ from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
 
+from detectron2_pdm import Datasets
 from detectron2_pdm.CustomConfig import CustomConfig
 from detectron2_pdm.CustomTrainer import CustomTrainer
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
@@ -36,6 +37,7 @@ def get_cfg(
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
     CustomConfig.load(cfg.OUTPUT_DIR)
+    Datasets.register(CustomConfig.imageset, CustomConfig.dataset)
     return cfg
 
 
