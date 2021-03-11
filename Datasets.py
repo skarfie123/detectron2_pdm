@@ -4,11 +4,13 @@ import subprocess
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.datasets import register_coco_instances
 
+from detectron2_pdm.CustomConfig import CustomConfig
+
 
 def download(imageset, dataset):
     if not os.path.exists(f"/content/{imageset}/"):
         subprocess.call(
-            f"cp /content/gdrive/MyDrive/Share/4YPDatasets/{imageset}.zip /content/",
+            f"cp {CustomConfig.driveDatasets}/{imageset}.zip /content/",
             shell=True,
         )
         subprocess.call(f"unzip {imageset}.zip > /dev/null", shell=True)
@@ -16,7 +18,7 @@ def download(imageset, dataset):
         subprocess.call(f"mv img* {imageset}/", shell=True)
     if not os.path.exists(f"/content/{dataset}_train.json"):
         subprocess.call(
-            f"cp /content/gdrive/MyDrive/Share/4YPDatasets/{dataset}.zip /content/",
+            f"cp {CustomConfig.driveDatasets}/{dataset}.zip /content/",
             shell=True,
         )
         subprocess.call(f"unzip {dataset}.zip > /dev/null", shell=True)

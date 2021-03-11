@@ -4,6 +4,8 @@ from detectron2_pdm import Datasets
 class MustSet(type):
     def __getattribute__(cls, key):
         if super().__getattribute__(key) is None:
+            if key in ["driveOutputs", "driveDatasets"]:
+                raise Exception("Config drive paths have not been set, driveOutputs and driveDatasets")
             raise Exception("Config has not been set, use CustomConfig.set()")
         return super().__getattribute__(key)
 
@@ -18,6 +20,9 @@ class CustomConfig(metaclass=MustSet):
     dataset = None
     numClasses = None
     pdmClasses = None
+
+    driveOutputs = None
+    driveDatasets = None
 
     @classmethod
     def set(

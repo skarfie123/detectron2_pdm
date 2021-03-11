@@ -70,11 +70,11 @@ def train(
     if save and (
         resume
         or not os.exists(
-            f"/content/gdrive/My\\ Drive/4YP\\ Output/detectron/{cfg.OUTPUT_DIR.split('/')[-1]}/"
+            f"{CustomConfig.driveOutputs}/{cfg.OUTPUT_DIR.split('/')[-1]}/"
         )
     ):
         os.system(
-            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} /content/gdrive/My\\ Drive/4YP\\ Output/detectron"
+            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} {CustomConfig.driveOutputs}"
         )
     elif save:
         print(
