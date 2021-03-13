@@ -112,3 +112,14 @@ def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7
     print(
         f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {inference_on_dataset(trainer.model, test_loader, evaluator)}"
     )
+
+
+def combine(v, g):
+    """ Combine PDM results from vertical and ground into one so that it can be compared with merged """
+    c = {i: v[i] for i in ["PDM: Presence", "PDM: Detection", "PDM: Measurement"]}
+    for i in c:
+        for j in g[i]:
+            if j in c[i]:
+                c[i][j] = (4 * c[i][j] + 5 * g[i][j]) / 9
+            else:
+                c[i][j] = g[i][j]
