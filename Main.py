@@ -123,3 +123,4 @@ def combine(v, g):
                 c[i][j] = (4 * c[i][j] + 5 * g[i][j]) / 9
             else:
                 c[i][j] = g[i][j]
+    return c
