@@ -117,9 +117,11 @@ def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7
         ]
     )
     test_loader = build_detection_test_loader(cfg, dataset + set)
+    result = inference_on_dataset(trainer.model, test_loader, evaluator)
     print(
-        f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {inference_on_dataset(trainer.model, test_loader, evaluator)}"
+        f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {result}"
     )
+    return result
 
 
 def combine(v, g):
