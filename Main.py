@@ -134,3 +134,17 @@ def combine(v, g):
             else:
                 c[i][j] = g[i][j]
     return c
+
+def evaluate_all_checkpoints(outputn):
+    import logging
+    log = logging.getLogger("detectron2")
+    ll = log.getEffectiveLevel()
+    log.setLevel(logging.WARNING)
+    results = {}
+    folder = f"/content/outputs/{CustomConfig.category}{outputn}"
+    for file in sorted(os.listdir(folder)):
+        if file.endswith(".pth") and not file.endswith("_final.pth"):
+            print(">>>", file)
+            results[file] = evaluate(cfg=get_cfg(outputn), model_file=file)
+    log.setLevel(ll)
+    return results
