@@ -1,6 +1,6 @@
 import os
 
-from detectron2 import model_zoo
+from detectron2 import model_zoo as mz
 from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
@@ -15,11 +15,19 @@ def get_cfg(
     outputn,
     model="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
     iterations=1000,
+    model_zoo=True,
+    weights_file=None,
 ):
     dataset = CustomConfig.dataset
     cfg = get_default()
-    cfg.merge_from_file(model_zoo.get_config_file(model))
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(model)
+    if model_zoo:
+        cfg.merge_from_file(mz.get_config_file(model))
+        cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(model)
+    else:
+        cfg.merge_from_file(model)
+        if weights_file is None:
+            raise Exception("Please provide path the weights file")
+        cfg.MODEL.WEIGHTS = weights_file
     cfg.DATASETS.TRAIN = (dataset + "_train",)
     cfg.DATASETS.TEST = (dataset + "_val",)
     cfg.TEST.EVAL_PERIOD = 100
@@ -85,13 +93,13 @@ def train(
         )
 
 
-def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7):
+def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7, model_file="model_final.pth"):
     if cfg is None:
         cfg = get_cfg(find_outputn())
     dataset = CustomConfig.dataset
     if pdmClasses is None:
         pdmClasses = CustomConfig.pdmClasses
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, model_file)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
     if trainer is None:
         trainer = CustomTrainer(cfg)

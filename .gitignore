@@ -3,3 +3,4 @@ ignore*
 *.json
 *.zip
 *.cmd
+*.code-workspace
