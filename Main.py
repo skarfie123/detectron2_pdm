@@ -69,11 +69,12 @@ def train(
         cfg = get_cfg(find_outputn() + 1)
     if not iterations is None:
         cfg.SOLVER.MAX_ITER = iterations
+
+    CustomConfig.save(cfg.OUTPUT_DIR)
+
     trainer = CustomTrainer(cfg)
     trainer.resume_or_load(resume=resume)
     trainer.train()
-
-    CustomConfig.save(cfg.OUTPUT_DIR)
 
     if evaluation:
         evaluate(cfg, trainer, classes)
@@ -84,6 +85,10 @@ def train(
             f"{CustomConfig.driveOutputs}/{cfg.OUTPUT_DIR.split('/')[-1]}/"
         )
     ):
+        # TODO: this doesnt work when a OUTPUT_DIR is in another dir
+        # it assumes /content/outputs/folder
+        # but doesnt work for /content/outputs/another/folder
+        # maybe change OUTPUT_DIR from relative to absolute and just use as a whole here?
         os.system(
             f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} {CustomConfig.driveOutputs}"
         )
@@ -93,7 +98,14 @@ def train(
         )
 
 
-def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7, model_file="model_final.pth"):
+def evaluate(
+    cfg=None,
+    trainer=None,
+    pdmClasses=None,
+    set="_test",
+    threshold=0.7,
+    model_file="model_final.pth",
+):
     if cfg is None:
         cfg = get_cfg(find_outputn())
     dataset = CustomConfig.dataset
@@ -118,9 +130,7 @@ def evaluate(cfg=None, trainer=None, pdmClasses=None, set="_test", threshold=0.7
     )
     test_loader = build_detection_test_loader(cfg, dataset + set)
     result = inference_on_dataset(trainer.model, test_loader, evaluator)
-    print(
-        f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {result}"
-    )
+    print(f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {result}")
     return result
 
 
@@ -135,8 +145,10 @@ def combine(v, g):
                 c[i][j] = g[i][j]
     return c
 
+
 def evaluate_all_checkpoints(outputn):
     import logging
+
     log = logging.getLogger("detectron2")
     ll = log.getEffectiveLevel()
     log.setLevel(logging.WARNING)

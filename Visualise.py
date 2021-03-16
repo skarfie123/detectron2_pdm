@@ -21,12 +21,13 @@ def compare(
     scale=0.5,
     threshold=0.7,
     outputn=None,
+    model_file="model_final.pth",
 ):
     if outputn is None:
         outputn = find_outputn()
     if cfg is None:
         cfg = get_cfg(outputn)
-        cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+        cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, model_file)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
     dataset = CustomConfig.dataset
     predictor = DefaultPredictor(cfg)
