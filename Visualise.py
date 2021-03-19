@@ -22,6 +22,7 @@ def compare(
     threshold=0.7,
     outputn=None,
     model_file="model_final.pth",
+    original=False,
 ):
     if outputn is None:
         outputn = find_outputn()
@@ -78,11 +79,18 @@ def compare(
                 scale=scale,
             )
             out2 = visualizer.draw_dataset_dict(d)
-            cv2_imshow(
-                np.concatenate(
-                    (out.get_image()[:, :, ::-1], out2.get_image()[:, :, ::-1]), axis=1
+            if original:
+                cv2_imshow(
+                    np.concatenate(
+                        (im, out.get_image()[:, :, ::-1], out2.get_image()[:, :, ::-1]), axis=1
+                    )
                 )
-            )
+            else:
+                cv2_imshow(
+                    np.concatenate(
+                        (out.get_image()[:, :, ::-1], out2.get_image()[:, :, ::-1]), axis=1
+                    )
+                )
             count += 1
         except:
             print("Error:", d["file_name"])
