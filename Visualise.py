@@ -82,7 +82,7 @@ def compare(
             if original:
                 cv2_imshow(
                     np.concatenate(
-                        (im, out.get_image()[:, :, ::-1], out2.get_image()[:, :, ::-1]), axis=1
+                        (cv2.resize(im, (0,0), fx=0.5, fy=0.5) , out.get_image()[:, :, ::-1], out2.get_image()[:, :, ::-1]), axis=1
                     )
                 )
             else:
