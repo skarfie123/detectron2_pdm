@@ -1,6 +1,7 @@
-/env
+env/
 ignore*
 *.json
 *.zip
 *.cmd
 *.code-workspace
+__pycache__/

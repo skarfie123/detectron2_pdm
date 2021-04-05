@@ -12,6 +12,12 @@ parser.add_argument(
     nargs="+",
     help="Path to COCO annotations file.",
 )
+parser.add_argument(
+    "--graph",
+    dest="graph",
+    action="store_true",
+    help="Plot graph of counts",
+)
 
 args = parser.parse_args()
 
@@ -41,7 +47,7 @@ def main(args):
 
             print(ann, sum(counts.values()), counts, len(images), sep="\t")
 
-            outputs[ann.split(".")[0].split("\\")[1]] = counts
+            outputs[ann.split(".")[0].split("\\")[-1]] = counts
     metrics = set()
     for output in outputs.values():
         metrics = metrics.union(set(output.keys()))
@@ -51,15 +57,15 @@ def main(args):
                 output[metric] = 0
     x = np.arange(0, len(metrics) * (len(outputs.keys()) + 1), len(outputs.keys()) + 1)
 
-    for i, o in enumerate(outputs.keys()):
-        plt.bar(
-            x + i + 0.5, [outputs[o][metric] for metric in metrics], width=1, label=o
-        )
-    plt.xticks(x, [m.split(":")[0] for m in metrics], rotation=90)
-    # plt.hlines(1, x[0], x[-1])
-    plt.legend()
-    plt.title("Counts")
-    plt.show()
+    if args.graph:
+        for i, o in enumerate(outputs.keys()):
+            plt.bar(
+                x + i + 0.5, [outputs[o][metric] for metric in metrics], width=1, label=o
+            )
+        plt.xticks(x, [m.split(":")[0] for m in metrics], rotation=90)
+        plt.legend()
+        plt.title("Counts")
+        plt.show()
 
 
 if __name__ == "__main__":
