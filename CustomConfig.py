@@ -1,65 +1,90 @@
-class MustSet(type):
-    def __getattribute__(cls, key):
-        if super().__getattribute__(key) is None:
-            if key in ["driveOutputs", "driveDatasets"]:
-                raise Exception(
-                    "Config drive paths have not been set, driveOutputs and driveDatasets"
-                )
-            raise Exception("Config has not been set, use CustomConfig.set()")
-        return super().__getattribute__(key)
-
-
 import os
-import json
+from enum import Enum, auto
+from dataclasses import dataclass
+from typing import List
+from detectron2_pdm.MustBeSet import MustBeSet
+import jsonpickle
+import pprint
 
 
-class CustomConfig(metaclass=MustSet):
-    category = None
-    imageset = None
-    dataset = None
-    numClasses = None
-    pdmClasses = None
+class Category(Enum):
+    MERGED = auto()
+    GROUND = auto()
+    VERTICAL = auto()
 
-    driveOutputs = None
-    driveDatasets = None
+
+@dataclass
+class ConfigSet:
+    category: Category
+    imageset: str
+    dataset: str
+    numClasses: int
+    pdmClasses: List[int]
+    folder: str
+
+
+class CustomConfig(metaclass=MustBeSet):
+    trainingConfig: ConfigSet = None
+    testingConfigs: List[ConfigSet] = None
+
+    driveOutputs: str = None  # path to all output folders
+    driveDatasets: str = None  # path to all datasets
 
     @classmethod
     def set(
         cls,
-        category: str,
-        imageset: str,
-        dataset: str,
-        numClasses: int,
-        pdmClasses: list,
+        trainingConfig: ConfigSet,
+        testingConfigs: List[ConfigSet],
+        driveOutputs: str,
+        driveDatasets: str,
     ):
-        cls.category = category
-        cls.imageset = imageset
-        cls.dataset = dataset
-        cls.numClasses = numClasses
-        cls.pdmClasses = pdmClasses
+        cls.trainingConfig = trainingConfig
+        cls.testingConfigs = testingConfigs
+
+        cls.set_drive(driveOutputs, driveDatasets)
 
     @classmethod
-    def save(cls, output_dir="/content"):
-        with open(os.path.join(output_dir, "config.json"), "w") as outfile:
-            json.dump(
+    def set_drive(
+        cls,
+        driveOutputs: str,
+        driveDatasets: str,
+    ):
+        cls.driveOutputs = driveOutputs
+        cls.driveDatasets = driveDatasets
+
+    @classmethod
+    def save(cls, config_dir="/content", config_file="config.json"):
+        with open(os.path.join(config_dir, config_file), "w") as outfile:
+            encoded = jsonpickle.encode(
                 {
-                    "category": cls.category,
-                    "imageset": cls.imageset,
-                    "dataset": cls.dataset,
-                    "numClasses": cls.numClasses,
-                    "pdmClasses": cls.pdmClasses,
+                    "trainingConfig": cls.trainingConfig,
+                    "testingConfigs": cls.testingConfigs,
                 },
-                outfile,
+                indent=4,
             )
+            outfile.write(encoded)
 
     @classmethod
-    def load(cls, output_dir="/content"):
-        if not os.path.exists(os.path.join(output_dir, "config.json")):
+    def load(cls, config_dir="/content", config_file="config.json"):
+        if not os.path.exists(os.path.join(config_dir, config_file)):
             return
-        with open(os.path.join(output_dir, "config.json"), "r") as infile:
-            config = json.load(infile)
-            cls.category = config["category"]
-            cls.imageset = config["imageset"]
-            cls.dataset = config["dataset"]
-            cls.numClasses = config["numClasses"]
-            cls.pdmClasses = config["pdmClasses"]
+        with open(os.path.join(config_dir, config_file), "r") as infile:
+            decoded = jsonpickle.decode(infile.read())
+            cls.trainingConfig = decoded["trainingConfig"]
+            cls.testingConfigs = decoded["testingConfigs"]
+
+    @classmethod
+    def pretty(cls):
+        return pprint.pformat(
+            {
+                "trainingConfig": cls.trainingConfig,
+                "testingConfigs": cls.testingConfigs,
+                "driveOutputs": cls.driveOutputs,
+                "driveDatasets": cls.driveDatasets,
+            }
+        )
+
+
+IMAGESET_MASK_VERTICAL = "mask_vertical"
+IMAGESET_MASK_GROUND = "mask_ground"
+IMAGESET_ORIGINAL_IMAGES = "original_images"
