@@ -1,6 +1,6 @@
-import json
 import argparse
 import glob
+import json
 
 parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
 parser.add_argument(
@@ -33,14 +33,19 @@ def main(args):
                 labels[c["id"]] = c["name"]
                 generality[c["name"]] = {i["id"]: 0 for i in images}
 
-
             for a in annotations:
                 generality[labels[a["category_id"]]][a["image_id"]] += 1
 
             for k in generality:
-                generality[k] = round(len([i for i in generality[k].values() if i>0]) / len(generality[k].values()), 2)
-            
-            generality["Average"] = round(sum(generality.values()) / len(generality.values()), 2)
+                generality[k] = round(
+                    len([i for i in generality[k].values() if i > 0])
+                    / len(generality[k].values()),
+                    2,
+                )
+
+            generality["Average"] = round(
+                sum(generality.values()) / len(generality.values()), 2
+            )
 
             print(ann, generality, sep="\t")
 

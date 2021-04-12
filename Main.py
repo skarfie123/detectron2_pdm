@@ -1,35 +1,25 @@
+# pyright: reportMissingImports=false
 import os
 
 from detectron2 import model_zoo as mz
 from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
-from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
+from detectron2.evaluation import (COCOEvaluator, DatasetEvaluators,
+                                   inference_on_dataset)
 
 from detectron2_pdm import Datasets
 from detectron2_pdm.CustomConfig import CustomConfig
 from detectron2_pdm.CustomTrainer import CustomTrainer
 from detectron2_pdm.PDM_Evaluator import PDM_Evaluator
 
+# TODO: make it not assume /content/outputs, and use os.path.join
+
 
 def get_cfg(
-    outputn,
-    model="COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml",
-    iterations=1000,
-    model_zoo=True,
-    weights_file=None,
+    iterations: int = 1000,
+    weights_file: str = None,
 ):
-    dataset = CustomConfig.dataset
     cfg = get_default()
-    if model_zoo:
-        cfg.merge_from_file(mz.get_config_file(model))
-        cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(model)
-    else:
-        cfg.merge_from_file(model)
-        if weights_file is None:
-            raise Exception("Please provide path the weights file")
-        cfg.MODEL.WEIGHTS = weights_file
-    cfg.DATASETS.TRAIN = (dataset + "_train",)
-    cfg.DATASETS.TEST = (dataset + "_val",)
     cfg.TEST.EVAL_PERIOD = 100
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.SOLVER.IMS_PER_BATCH = 2
@@ -37,38 +27,41 @@ def get_cfg(
     cfg.SOLVER.MAX_ITER = iterations
     cfg.SOLVER.CHECKPOINT_PERIOD = 3000
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomConfig.numClasses
-    if isinstance(outputn, str):
-        cfg.OUTPUT_DIR = outputn
-    else:
-        cfg.OUTPUT_DIR = f"./outputs/{CustomConfig.category}{outputn}"
+
+    cfg.OUTPUT_DIR = f"/content/outputs/{CustomConfig.trainingConfig.folder}"
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
-    CustomConfig.load(cfg.OUTPUT_DIR)
-    Datasets.register(CustomConfig.imageset, CustomConfig.dataset)
+    if CustomConfig.load(cfg.OUTPUT_DIR):
+        print("Note: config existed in training folder so loaded it")
+
+    cfg.DATASETS.TRAIN = (CustomConfig.trainingConfig.dataset + "_train",)
+    cfg.DATASETS.TEST = (CustomConfig.trainingConfig.dataset + "_val",)
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomConfig.trainingConfig.numClasses
+
+    if CustomConfig.modelWeights == "":
+        cfg.merge_from_file(mz.get_config_file(CustomConfig.model))
+        cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(CustomConfig.model)
+    else:
+        cfg.merge_from_file(CustomConfig.model)
+        cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
+    if weights_file is not None:
+        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
+
+    Datasets.register(
+        CustomConfig.trainingConfig.imageset,
+        CustomConfig.trainingConfig.dataset,
+    )
+
     return cfg
-
-
-def find_outputn():
-    """Gives latest outputn"""
-    outputn = 0
-    while os.path.exists(f"/content/outputs/{CustomConfig.category}{outputn}"):
-        outputn += 1
-    return outputn - 1
 
 
 def train(
     iterations=None,
-    cfg=None,
-    evaluation=True,
-    classes=None,
+    evaluation=False,
     resume=True,
     save=False,
 ):
-    if cfg is None:
-        cfg = get_cfg(find_outputn() + 1)
-    if not iterations is None:
-        cfg.SOLVER.MAX_ITER = iterations
+    cfg = get_cfg(iterations=iterations)
 
     CustomConfig.save(cfg.OUTPUT_DIR)
 
@@ -77,61 +70,74 @@ def train(
     trainer.train()
 
     if evaluation:
-        evaluate(cfg, trainer, classes)
+        evaluate()
 
-    if save and (
-        resume
-        or not os.exists(
-            f"{CustomConfig.driveOutputs}/{cfg.OUTPUT_DIR.split('/')[-1]}/"
-        )
-    ):
-        # TODO: this doesnt work when a OUTPUT_DIR is in another dir
-        # it assumes /content/outputs/folder
-        # but doesnt work for /content/outputs/another/folder
-        # maybe change OUTPUT_DIR from relative to absolute and just use as a whole here?
-        os.system(
-            f"cp -rf /content/outputs/{cfg.OUTPUT_DIR.split('/')[-1]} {CustomConfig.driveOutputs}"
-        )
-    elif save:
-        print(
-            "Warning: folder exists, did not save to Drive (did you forget to set resume=True?)"
-        )
+    if save:
+        if resume or not os.exists(
+            f"{CustomConfig.driveOutputs}/{CustomConfig.trainingConfig.folder}/"
+        ):
+            os.system(
+                f"cp -rf /content/outputs/{CustomConfig.trainingConfig.folder} {CustomConfig.driveOutputs}"
+            )
+        else:
+            print(
+                "Warning: folder exists, did not save to Drive (did you forget to set resume=True?)"
+            )
+            while True:
+                inp = input("Save and overwrite? (y/n): ").lower().strip()
+                if inp == "y":
+                    os.system(
+                        f"cp -rf /content/outputs/{CustomConfig.trainingConfig.folder} {CustomConfig.driveOutputs}"
+                    )
+                    break
+                elif inp == "n":
+                    break
+                print("Invalid answer")
 
 
 def evaluate(
-    cfg=None,
-    trainer=None,
-    pdmClasses=None,
-    set="_test",
-    threshold=0.7,
-    model_file="model_final.pth",
+    subset: str = "_test",
+    threshold: float = 0.7,
+    weights_file="model_final.pth",
+    testIndex: int = None,
 ):
-    if cfg is None:
-        cfg = get_cfg(find_outputn())
-    dataset = CustomConfig.dataset
-    if pdmClasses is None:
-        pdmClasses = CustomConfig.pdmClasses
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, model_file)
+    cfg = get_cfg(weights_file=weights_file)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
-    if trainer is None:
-        trainer = CustomTrainer(cfg)
-        trainer.resume_or_load(resume=False)
+    trainer = CustomTrainer(cfg)
+    trainer.resume_or_load(resume=False)
 
-    evaluator = DatasetEvaluators(
-        [
-            COCOEvaluator(
-                dataset + set,
-                ("bbox", "segm"),
-                False,
-                output_dir=cfg.OUTPUT_DIR + "/coco_eval_test",
-            ),
-            PDM_Evaluator(dataset + set, pdmClasses),
-        ]
-    )
-    test_loader = build_detection_test_loader(cfg, dataset + set)
-    result = inference_on_dataset(trainer.model, test_loader, evaluator)
-    print(f"{cfg.OUTPUT_DIR.split('/')[-1]}_{cfg.SOLVER.MAX_ITER} = {result}")
-    return result
+    if testIndex is None:
+        tests = list(range(len(CustomConfig.testingConfigs)))
+    else:
+        tests = [testIndex]
+
+    results = {}
+    for i in tests:
+        print(f"Test: {i}")
+        dataset = CustomConfig.testingConfigs[i].dataset
+        pdmClasses = CustomConfig.testingConfigs[i].pdmClasses
+
+        Datasets.register(
+            CustomConfig.testingConfigs[i].imageset,
+            dataset,
+        )
+
+        evaluator = DatasetEvaluators(
+            [
+                COCOEvaluator(
+                    dataset + subset,
+                    ("bbox", "segm"),
+                    False,
+                    output_dir=f"/content/outputs/{CustomConfig.testingConfigs[i].folder}/coco_eval_test",
+                ),
+                PDM_Evaluator(dataset + subset, pdmClasses),
+            ]
+        )
+        test_loader = build_detection_test_loader(cfg, dataset + subset)
+        result = inference_on_dataset(trainer.model, test_loader, evaluator)
+        print(f"{CustomConfig.testingConfigs[i].folder} = {result}")
+        results[CustomConfig.testingConfigs[i].folder] = result
+    return results
 
 
 def combine(v, g):
@@ -146,7 +152,7 @@ def combine(v, g):
     return c
 
 
-def evaluate_all_checkpoints(outputn):
+""" def evaluate_all_checkpoints(outputn):
     import logging
 
     log = logging.getLogger("detectron2")
@@ -157,6 +163,6 @@ def evaluate_all_checkpoints(outputn):
     for file in sorted(os.listdir(folder)):
         if file.endswith(".pth") and not file.endswith("_final.pth"):
             print(">>>", file)
-            results[file] = evaluate(cfg=get_cfg(outputn), model_file=file)
+            results[file] = evaluate(model_file=file)
     log.setLevel(ll)
-    return results
+    return results """

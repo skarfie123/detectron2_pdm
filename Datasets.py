@@ -1,3 +1,4 @@
+# pyright: reportMissingImports=false
 import os
 import subprocess
 
@@ -16,7 +17,11 @@ def download(imageset, dataset):
         subprocess.call(f"unzip {imageset}.zip > /dev/null", shell=True)
         subprocess.call(f"mkdir {imageset}", shell=True)
         subprocess.call(f"mv img* {imageset}/", shell=True)
-    if not os.path.exists(f"/content/{dataset}_train.json"):
+    if not (
+        os.path.exists(f"/content/{dataset}_train.json")
+        and os.path.exists(f"/content/{dataset}_val.json")
+        and os.path.exists(f"/content/{dataset}_test.json")
+    ):
         subprocess.call(
             f"cp {CustomConfig.driveDatasets}/{dataset}.zip /content/",
             shell=True,

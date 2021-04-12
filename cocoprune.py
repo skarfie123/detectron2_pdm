@@ -1,11 +1,12 @@
 # modified from https://github.com/akarazniewicz/cocosplit.git
 
-import json
 import argparse
-import funcy
-from sklearn.model_selection import train_test_split
-import numpy as np
 import glob
+import json
+
+import funcy
+import numpy as np
+from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser(
     description="Splits COCO annotations file into training and test sets."
@@ -60,8 +61,9 @@ def main(args):
             images = coco["images"]
             annotations = coco["annotations"]
             categories = coco["categories"]
-
-            print(coco.keys())
+            print(list((i["name"], i["id"]) for i in categories))
+            continue
+            # TODO maybe need to keep all categories, but just remove annotations for G and V test.. or maybe dont even need to remove. just use different images and ignore via PDM
 
             print("Original", len(images))
 
@@ -75,7 +77,7 @@ def main(args):
                 annotations,
             )
 
-            """ print("Annotations", len(annotations))
+            print("Annotations", len(annotations))
             a2 = []
             for i in range(len(annotations)):
                 if (
@@ -90,8 +92,24 @@ def main(args):
 
             c2 = []
             ch = []
+            ground = {
+                "drainage",
+                "pavement",
+                "road marking",
+                "sidewalk",
+                "access cover",
+            }
+            vertical = {
+                "traffic light",
+                "street light",
+                "street sign",
+                "barrier",
+            }
+            merged = ground | vertical | {"human", "car"}
+            print(merged)
             for c in categories:
-                if c["name"] == "human" or c["name"] == "car":
+                # if c["name"] not in ground:
+                if c["id"] in [2, 3]:
                     ch.append(c["id"])
                 else:
                     c2.append(c)
@@ -100,12 +118,15 @@ def main(args):
 
             a2 = []
             for i in range(len(annotations)):
-                if annotations[i]["category_id"] in ch:
+                if (
+                    annotations[i]["category_id"] in ch
+                    and annotations[i]["category_id"] != 4
+                ):
                     pass
                 else:
                     a2.append(annotations[i])
             annotations = a2
-            print("Annotations filtered cars and humans", len(annotations)) """
+            print("Annotations filtered", len(annotations))
 
             images_with_annotations = funcy.lmap(
                 lambda a: int(a["image_id"]), annotations
@@ -126,7 +147,7 @@ def main(args):
 
             # print(len(images), end=" - >")
             images.sort(key=f)
-            images = images[-300:]
+            # images = images[-300:]
             # funcy.lmap(lambda i : print(i['file_name'][9:12], end="\t"), images)
 
             print(len(images))
@@ -141,14 +162,14 @@ def main(args):
                 images,
             )
 
-            """ save_coco(
+            save_coco(
                 ann,
                 info,
                 licenses,
                 images,
                 filter_annotations(annotations, images),
                 categories,
-            ) """
+            )
 
             # print("Saved {} entries in {} and {} in {}".format(len(x), args.train, len(y), args.test))
 

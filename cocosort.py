@@ -1,8 +1,8 @@
 # modified from https://github.com/akarazniewicz/cocosplit.git
 
-import json
 import argparse
 import glob
+import json
 
 parser = argparse.ArgumentParser(
     description="Splits COCO annotations file into training and test sets."

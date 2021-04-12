@@ -71,14 +71,15 @@ class PDM_Evaluator(DatasetEvaluator):
                     fn += 1
                     continue
                 distance = self.detection_distance(
-                    annotations[pair[0]], predictions.pred_boxes[pair[1]].tensor[0]
+                    annotations[pair[0]],
+                    predictions.pred_boxes[pair[1]].tensor[0],
                 )
                 if distance < DETECTION_DISTANCE_THRESHOLD:
                     tp += 1
                     se_sum += distance / min(annotations[pair[0]]["bbox"][2:])
                     pairs2.append(
                         (pair[0], pair[1], distance)
-                    )  ## use only these for the Measurement stage
+                    )  # use only these for the Measurement stage
                 else:
                     fp += 1
                     fn += 1
@@ -251,7 +252,10 @@ class PDM_Evaluator(DatasetEvaluator):
     @classmethod
     # @print_result
     def detection_distance(cls, a, pb):
-        a_centre = (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
+        a_centre = (
+            a["bbox"][0] + a["bbox"][2] / 2,
+            a["bbox"][1] + a["bbox"][3] / 2,
+        )
         p_centre = (
             (pb[0].item() + pb[2].item()) / 2,
             (pb[1].item() + pb[3].item()) / 2,
@@ -273,12 +277,18 @@ class PDM_Evaluator(DatasetEvaluator):
         # Annotations are [x1,y1,w,h]
         for a in annotations:
             a_centres.append(
-                (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
+                (
+                    a["bbox"][0] + a["bbox"][2] / 2,
+                    a["bbox"][1] + a["bbox"][3] / 2,
+                )
             )
         # Predictions are [x1,y1,x2,y2]
         for pb in predictions.pred_boxes:
             p_centres.append(
-                ((pb[0].item() + pb[2].item()) / 2, (pb[1].item() + pb[3].item()) / 2)
+                (
+                    (pb[0].item() + pb[2].item()) / 2,
+                    (pb[1].item() + pb[3].item()) / 2,
+                )
             )
         # infinite points for use with the extra items
         a_centres.append((np.inf, np.inf))
@@ -473,12 +483,18 @@ class PDM_Evaluator_Old(DatasetEvaluator):
         a_centres = []
         for a in annotations:
             a_centres.append(
-                (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
+                (
+                    a["bbox"][0] + a["bbox"][2] / 2,
+                    a["bbox"][1] + a["bbox"][3] / 2,
+                )
             )
         p_centres = []
         for pb in predictions.pred_boxes:
             p_centres.append(
-                ((pb[0].item() + pb[2].item()) / 2, (pb[1].item() + pb[3].item()) / 2)
+                (
+                    (pb[0].item() + pb[2].item()) / 2,
+                    (pb[1].item() + pb[3].item()) / 2,
+                )
             )
         pairs = []
         for i in range(n):
@@ -519,7 +535,10 @@ class PDM_Evaluator_Old(DatasetEvaluator):
     # @print_result
     def detection_score(cls, a, pb):
         WIDTH = 150
-        a_centre = (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
+        a_centre = (
+            a["bbox"][0] + a["bbox"][2] / 2,
+            a["bbox"][1] + a["bbox"][3] / 2,
+        )
         p_centre = (
             (pb[0].item() + pb[2].item()) / 2,
             (pb[1].item() + pb[3].item()) / 2,
@@ -532,7 +551,10 @@ class PDM_Evaluator_Old(DatasetEvaluator):
     # @print_result
     def measurement_score(cls, a, pb):
         WIDTH = 25
-        a_centre = (a["bbox"][0] + a["bbox"][2] / 2, a["bbox"][1] + a["bbox"][3] / 2)
+        a_centre = (
+            a["bbox"][0] + a["bbox"][2] / 2,
+            a["bbox"][1] + a["bbox"][3] / 2,
+        )
         p_centre = (
             (pb[0].item() + pb[2].item()) / 2,
             (pb[1].item() + pb[3].item()) / 2,

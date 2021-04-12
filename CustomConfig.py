@@ -1,10 +1,13 @@
+# pyright: reportMissingImports=false
 import os
-from enum import Enum, auto
-from dataclasses import dataclass
-from typing import List
-from detectron2_pdm.MustBeSet import MustBeSet
-import jsonpickle
 import pprint
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import List
+
+import jsonpickle
+
+from detectron2_pdm.MustBeSet import MustBeSet
 
 
 class Category(Enum):
@@ -24,6 +27,8 @@ class ConfigSet:
 
 
 class CustomConfig(metaclass=MustBeSet):
+    model = "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+    modelWeights = ""
     trainingConfig: ConfigSet = None
     testingConfigs: List[ConfigSet] = None
 
@@ -37,11 +42,18 @@ class CustomConfig(metaclass=MustBeSet):
         testingConfigs: List[ConfigSet],
         driveOutputs: str,
         driveDatasets: str,
+        model: str = None,
+        modelWeights: str = None,
     ):
         cls.trainingConfig = trainingConfig
         cls.testingConfigs = testingConfigs
 
         cls.set_drive(driveOutputs, driveDatasets)
+
+        if model:
+            cls.model = model
+        if modelWeights:
+            cls.modelWeights = modelWeights
 
     @classmethod
     def set_drive(
@@ -59,23 +71,28 @@ class CustomConfig(metaclass=MustBeSet):
                 {
                     "trainingConfig": cls.trainingConfig,
                     "testingConfigs": cls.testingConfigs,
+                    "model": cls.model,
+                    "modelWeights": cls.modelWeights,
                 },
                 indent=4,
             )
             outfile.write(encoded)
 
     @classmethod
-    def load(cls, config_dir="/content", config_file="config.json"):
+    def load(cls, config_dir="/content", config_file="config.json") -> bool:
         if not os.path.exists(os.path.join(config_dir, config_file)):
-            return
+            return False
         with open(os.path.join(config_dir, config_file), "r") as infile:
             decoded = jsonpickle.decode(infile.read())
             cls.trainingConfig = decoded["trainingConfig"]
             cls.testingConfigs = decoded["testingConfigs"]
+            cls.model = decoded["model"]
+            cls.modelWeights = decoded["modelWeights"]
+        return True
 
     @classmethod
     def pretty(cls):
-        return pprint.pformat(
+        pprint.pprint(
             {
                 "trainingConfig": cls.trainingConfig,
                 "testingConfigs": cls.testingConfigs,

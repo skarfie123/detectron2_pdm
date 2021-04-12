@@ -1,5 +1,6 @@
-import json
 import argparse
+import json
+
 import funcy
 from sklearn.model_selection import train_test_split
 
@@ -81,7 +82,12 @@ def main(args):
             categories,
         )
         save_coco(
-            args.test, info, licenses, y, filter_annotations(annotations, y), categories
+            args.test,
+            info,
+            licenses,
+            y,
+            filter_annotations(annotations, y),
+            categories,
         )
 
         print(

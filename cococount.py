@@ -1,6 +1,7 @@
-import json
 import argparse
 import glob
+import json
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -60,7 +61,10 @@ def main(args):
     if args.graph:
         for i, o in enumerate(outputs.keys()):
             plt.bar(
-                x + i + 0.5, [outputs[o][metric] for metric in metrics], width=1, label=o
+                x + i + 0.5,
+                [outputs[o][metric] for metric in metrics],
+                width=1,
+                label=o,
             )
         plt.xticks(x, [m.split(":")[0] for m in metrics], rotation=90)
         plt.legend()

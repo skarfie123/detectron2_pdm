@@ -1,5 +1,6 @@
-import json
 import argparse
+import json
+
 import funcy
 
 parser = argparse.ArgumentParser(
@@ -13,6 +14,7 @@ parser.add_argument(
 parser.add_argument("target", type=str, help="Where to store COCO training annotations")
 
 args = parser.parse_args()
+
 
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, "wt", encoding="UTF-8") as coco:
