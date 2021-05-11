@@ -2,17 +2,6 @@ import argparse
 import glob
 import json
 
-parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
-parser.add_argument(
-    "annotations",
-    metavar="coco_annotations",
-    type=str,
-    nargs="+",
-    help="Path to COCO annotations file.",
-)
-
-args = parser.parse_args()
-
 
 def main(args):
     if len(args.annotations) == 1:
@@ -51,4 +40,14 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
+    parser.add_argument(
+        "annotations",
+        metavar="coco_annotations",
+        type=str,
+        nargs="+",
+        help="Path to COCO annotations file.",
+    )
+
+    args = parser.parse_args()
     main(args)
