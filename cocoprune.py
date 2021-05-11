@@ -5,27 +5,6 @@ import glob
 import json
 
 import funcy
-import numpy as np
-from sklearn.model_selection import train_test_split
-
-parser = argparse.ArgumentParser(
-    description="Splits COCO annotations file into training and test sets."
-)
-parser.add_argument(
-    "annotations",
-    metavar="coco_annotations",
-    type=str,
-    nargs="+",
-    help="Path to COCO annotations file.",
-)
-parser.add_argument(
-    "--having-annotations",
-    dest="having_annotations",
-    action="store_true",
-    help="Ignore all images without annotations. Keep only these with at least one annotation",
-)
-
-args = parser.parse_args()
 
 
 def save_coco(file, info, licenses, images, annotations, categories):
@@ -62,101 +41,48 @@ def main(args):
             annotations = coco["annotations"]
             categories = coco["categories"]
             print(list((i["name"], i["id"]) for i in categories))
-            continue
-            # TODO maybe need to keep all categories, but just remove annotations for G and V test.. or maybe dont even need to remove. just use different images and ignore via PDM
 
             print("Original", len(images))
-
-            def nothing():
-                pass
-
-            funcy.lmap(
-                lambda a: print(a, next(i for i in images if i["id"] == a["image_id"]))
-                if a["segmentation"] == []
-                else nothing(),
-                annotations,
-            )
-
             print("Annotations", len(annotations))
-            a2 = []
-            for i in range(len(annotations)):
-                if (
-                    max(annotations[i]["bbox"][2], annotations[i]["bbox"][3]) < 50
-                    or min(annotations[i]["bbox"][2], annotations[i]["bbox"][3]) < 30
-                ):
-                    pass
-                else:
-                    a2.append(annotations[i])
-            annotations = a2
-            print("Annotations filtered by size", len(annotations))
 
-            c2 = []
-            ch = []
-            ground = {
-                "drainage",
-                "pavement",
-                "road marking",
-                "sidewalk",
-                "access cover",
-            }
-            vertical = {
-                "traffic light",
-                "street light",
-                "street sign",
-                "barrier",
-            }
-            merged = ground | vertical | {"human", "car"}
-            print(merged)
-            for c in categories:
-                # if c["name"] not in ground:
-                if c["id"] in [2, 3]:
-                    ch.append(c["id"])
-                else:
-                    c2.append(c)
-            print(len(c2), len(categories))
-            categories = c2
+            # filter by size
+            if args.filter_size:
+                a2 = []
+                for i in range(len(annotations)):
+                    if (
+                        max(annotations[i]["bbox"][2], annotations[i]["bbox"][3]) < 50
+                        or min(annotations[i]["bbox"][2], annotations[i]["bbox"][3])
+                        < 30
+                    ):
+                        pass
+                    else:
+                        a2.append(annotations[i])
+                annotations = a2
+                print("Annotations filtered by size", len(annotations))
 
-            a2 = []
-            for i in range(len(annotations)):
-                if (
-                    annotations[i]["category_id"] in ch
-                    and annotations[i]["category_id"] != 4
-                ):
-                    pass
-                else:
-                    a2.append(annotations[i])
-            annotations = a2
-            print("Annotations filtered", len(annotations))
-
+            # remove images with no annotations
             images_with_annotations = funcy.lmap(
                 lambda a: int(a["image_id"]), annotations
             )
-
             images = funcy.lremove(
                 lambda i: i["id"] not in images_with_annotations, images
             )
-
             print("Removed empty images", len(images))
 
+            # remove images copy images
             images = funcy.lremove(lambda i: "copy" in i["file_name"].lower(), images)
-
             print("Removed copy", len(images))
 
-            def f(e):
-                return e["file_name"]
-
-            # print(len(images), end=" - >")
-            images.sort(key=f)
-            # images = images[-300:]
-            # funcy.lmap(lambda i : print(i['file_name'][9:12], end="\t"), images)
-
-            print(len(images))
+            # warn about empty annotations
+            def nothing():
+                pass
 
             no_segm = funcy.lfilter(lambda a: len(a["segmentation"]) == 0, annotations)
-            print(len(no_segm), len(annotations))
-            image_ids = funcy.lmap(lambda i: i["image_id"], no_segm)
+            if len(no_segm) > 0:
+                print(f"{len(no_segm) = }, {len(annotations) = }")
+            image_ids = funcy.lmap(lambda a: a["image_id"], no_segm)
             funcy.lmap(
-                lambda i: print("! no segm annot in #" + i["file_name"])
+                lambda i: print("! no segm annotation in #" + i["file_name"])
                 if i["id"] in image_ids
                 else nothing(),
                 images,
@@ -175,4 +101,22 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Splits COCO annotations file into training and test sets."
+    )
+    parser.add_argument(
+        "annotations",
+        metavar="coco_annotations",
+        type=str,
+        nargs="+",
+        help="Path to COCO annotations file.",
+    )
+    parser.add_argument(
+        "--filter-size",
+        dest="filter_size",
+        action="store_true",
+        help="filter annotations that are too small",
+    )
+
+    args = parser.parse_args()
     main(args)

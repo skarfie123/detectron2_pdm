@@ -3,18 +3,6 @@ import json
 
 import funcy
 
-parser = argparse.ArgumentParser(
-    description="Splits COCO annotations file into training and test sets."
-)
-parser.add_argument(
-    "original",
-    type=str,
-    help="Path to COCO annotations file.",
-)
-parser.add_argument("target", type=str, help="Where to store COCO training annotations")
-
-args = parser.parse_args()
-
 
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, "wt", encoding="UTF-8") as coco:
@@ -58,7 +46,7 @@ def main(args):
         images = [i for i in images if i["file_name"] in ims]
         print("target after", sorted(int(i["file_name"][9:12]) for i in images))
         save_coco(
-            args.target.replace(".json", "_same.json"),
+            args.target,
             info,
             licenses,
             images,
@@ -68,4 +56,15 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Splits COCO annotations file into training and test sets."
+    )
+    parser.add_argument(
+        "original",
+        type=str,
+        help="Path to COCO annotations file.",
+    )
+    parser.add_argument("target", type=str, help="Where to store COCO training annotations")
+
+    args = parser.parse_args()
     main(args)

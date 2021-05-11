@@ -4,19 +4,6 @@ import argparse
 import glob
 import json
 
-parser = argparse.ArgumentParser(
-    description="Splits COCO annotations file into training and test sets."
-)
-parser.add_argument(
-    "annotations",
-    metavar="coco_annotations",
-    type=str,
-    nargs="+",
-    help="Path to COCO annotations file.",
-)
-
-args = parser.parse_args()
-
 
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, "wt", encoding="UTF-8") as coco:
@@ -76,4 +63,16 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Splits COCO annotations file into training and test sets."
+    )
+    parser.add_argument(
+        "annotations",
+        metavar="coco_annotations",
+        type=str,
+        nargs="+",
+        help="Path to COCO annotations file.",
+    )
+
+    args = parser.parse_args()
     main(args)

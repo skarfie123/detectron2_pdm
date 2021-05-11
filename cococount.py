@@ -5,22 +5,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
-parser.add_argument(
-    "annotations",
-    metavar="coco_annotations",
-    type=str,
-    nargs="+",
-    help="Path to COCO annotations file.",
-)
-parser.add_argument(
-    "--graph",
-    dest="graph",
-    action="store_true",
-    help="Plot graph of counts",
-)
-
-args = parser.parse_args()
+from colorama import Fore
 
 
 def main(args):
@@ -46,7 +31,11 @@ def main(args):
             for a in annotations:
                 counts[labels[a["category_id"]]] += 1
 
-            print(ann, sum(counts.values()), counts, len(images), sep="\t")
+            print(
+                f"{Fore.GREEN}{ann}, {len(categories)=}, {len(images)=}, total={sum(counts.values())}{Fore.RESET}",
+                "\n",
+                counts,
+            )
 
             outputs[ann.split(".")[0].split("\\")[-1]] = counts
     metrics = set()
@@ -73,4 +62,20 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Counts COCO annotations per category")
+    parser.add_argument(
+        "annotations",
+        metavar="coco_annotations",
+        type=str,
+        nargs="+",
+        help="Path to COCO annotations file.",
+    )
+    parser.add_argument(
+        "--graph",
+        dest="graph",
+        action="store_true",
+        help="Plot graph of counts",
+    )
+
+    args = parser.parse_args()
     main(args)

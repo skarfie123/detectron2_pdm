@@ -4,33 +4,6 @@ import json
 import funcy
 from sklearn.model_selection import train_test_split
 
-parser = argparse.ArgumentParser(
-    description="Splits COCO annotations file into training and test sets."
-)
-parser.add_argument(
-    "annotations",
-    metavar="coco_annotations",
-    type=str,
-    help="Path to COCO annotations file.",
-)
-parser.add_argument("train", type=str, help="Where to store COCO training annotations")
-parser.add_argument("test", type=str, help="Where to store COCO test annotations")
-parser.add_argument(
-    "-s",
-    dest="split",
-    type=float,
-    required=True,
-    help="A percentage of a split; a number in (0, 1)",
-)
-parser.add_argument(
-    "--having-annotations",
-    dest="having_annotations",
-    action="store_true",
-    help="Ignore all images without annotations. Keep only these with at least one annotation",
-)
-
-args = parser.parse_args()
-
 
 def save_coco(file, info, licenses, images, annotations, categories):
     with open(file, "wt", encoding="UTF-8") as coco:
@@ -63,6 +36,7 @@ def main(args):
         categories = coco["categories"]
 
         number_of_images = len(images)
+        print("Original:", number_of_images)
 
         images_with_annotations = funcy.lmap(lambda a: int(a["image_id"]), annotations)
 
@@ -98,4 +72,32 @@ def main(args):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Splits COCO annotations file into training and test sets."
+    )
+    parser.add_argument(
+        "annotations",
+        metavar="coco_annotations",
+        type=str,
+        help="Path to COCO annotations file.",
+    )
+    parser.add_argument(
+        "train", type=str, help="Where to store COCO training annotations"
+    )
+    parser.add_argument("test", type=str, help="Where to store COCO test annotations")
+    parser.add_argument(
+        "-s",
+        dest="split",
+        type=float,
+        required=True,
+        help="A percentage of a split; a number in (0, 1)",
+    )
+    parser.add_argument(
+        "--having-annotations",
+        dest="having_annotations",
+        action="store_true",
+        help="Ignore all images without annotations. Keep only these with at least one annotation",
+    )
+
+    args = parser.parse_args()
     main(args)
