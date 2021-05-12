@@ -28,7 +28,7 @@ def compare(
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
 
     if testIndex is None:
-        tests = range(len(CustomConfig.testingConfigs))
+        tests = list(range(len(CustomConfig.testingConfigs)))
     else:
         tests = [testIndex]
 

@@ -4,8 +4,7 @@ import os
 from detectron2 import model_zoo as mz
 from detectron2.config import get_cfg as get_default
 from detectron2.data import build_detection_test_loader
-from detectron2.evaluation import (COCOEvaluator, DatasetEvaluators,
-                                   inference_on_dataset)
+from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
 
 from detectron2_pdm import Datasets
 from detectron2_pdm.CustomConfig import CustomConfig
@@ -25,7 +24,7 @@ def get_cfg(
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025
     cfg.SOLVER.MAX_ITER = iterations
-    cfg.SOLVER.CHECKPOINT_PERIOD = 3000
+    cfg.SOLVER.CHECKPOINT_PERIOD = CustomConfig.saveInterval
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
 
     cfg.OUTPUT_DIR = f"/content/outputs/{CustomConfig.trainingConfig.folder}"
