@@ -26,14 +26,18 @@ class ConfigSet:
     folder: str
 
 
+# TODO make pdmClasses List[str] to make it easier to config
+
+
 class CustomConfig(metaclass=MustBeSet):
     model = "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
     modelWeights = ""
-    trainingConfig: ConfigSet = None
-    testingConfigs: List[ConfigSet] = None
+    saveInterval: int = 1000
+    trainingConfig: ConfigSet = None  # type: ignore
+    testingConfigs: List[ConfigSet] = None  # type: ignore
 
-    driveOutputs: str = None  # path to all output folders
-    driveDatasets: str = None  # path to all datasets
+    driveOutputs: str = None  # type: ignore # path to all output folders
+    driveDatasets: str = None  # type: ignore # path to all datasets
 
     @classmethod
     def set(
@@ -44,6 +48,7 @@ class CustomConfig(metaclass=MustBeSet):
         driveDatasets: str,
         model: str = None,
         modelWeights: str = None,
+        saveInterval: int = None,
     ):
         cls.trainingConfig = trainingConfig
         cls.testingConfigs = testingConfigs
@@ -54,6 +59,8 @@ class CustomConfig(metaclass=MustBeSet):
             cls.model = model
         if modelWeights:
             cls.modelWeights = modelWeights
+        if saveInterval:
+            cls.saveInterval = saveInterval
 
     @classmethod
     def set_drive(
@@ -73,6 +80,7 @@ class CustomConfig(metaclass=MustBeSet):
                     "testingConfigs": cls.testingConfigs,
                     "model": cls.model,
                     "modelWeights": cls.modelWeights,
+                    "saveInterval": cls.saveInterval,
                 },
                 indent=4,
             )
@@ -88,6 +96,7 @@ class CustomConfig(metaclass=MustBeSet):
             cls.testingConfigs = decoded["testingConfigs"]
             cls.model = decoded["model"]
             cls.modelWeights = decoded["modelWeights"]
+            cls.saveInterval = decoded["saveInterval"]
         return True
 
     @classmethod
@@ -98,6 +107,9 @@ class CustomConfig(metaclass=MustBeSet):
                 "testingConfigs": cls.testingConfigs,
                 "driveOutputs": cls.driveOutputs,
                 "driveDatasets": cls.driveDatasets,
+                "model": cls.model,
+                "modelWeights": cls.modelWeights,
+                "saveInterval": cls.saveInterval,
             }
         )
 
