@@ -19,6 +19,16 @@ def get_cfg(
     weights_file: str = None,
 ):
     cfg = get_default()
+
+    if CustomConfig.modelWeights == "":
+        cfg.merge_from_file(mz.get_config_file(CustomConfig.model))
+        cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(CustomConfig.model)
+    else:
+        cfg.merge_from_file(CustomConfig.model)
+        cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
+    if weights_file is not None:
+        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
+
     cfg.TEST.EVAL_PERIOD = 100
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.SOLVER.IMS_PER_BATCH = 2
@@ -36,15 +46,6 @@ def get_cfg(
     cfg.DATASETS.TRAIN = (CustomConfig.trainingConfig.dataset + "_train",)
     cfg.DATASETS.TEST = (CustomConfig.trainingConfig.dataset + "_val",)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = CustomConfig.trainingConfig.numClasses
-
-    if CustomConfig.modelWeights == "":
-        cfg.merge_from_file(mz.get_config_file(CustomConfig.model))
-        cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(CustomConfig.model)
-    else:
-        cfg.merge_from_file(CustomConfig.model)
-        cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
-    if weights_file is not None:
-        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
 
     Datasets.register(
         CustomConfig.trainingConfig.imageset,
@@ -112,7 +113,7 @@ def evaluate(
 
     results = {}
     for i in tests:
-        print(f"Test: {i}")
+        print(f"Test: {i} - {CustomConfig.testingConfigs[i].folder}")
         dataset = CustomConfig.testingConfigs[i].dataset
         pdmClasses = CustomConfig.testingConfigs[i].pdmClasses
 

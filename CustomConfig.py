@@ -27,6 +27,7 @@ class ConfigSet:
 
 
 # TODO make pdmClasses List[str] to make it easier to config
+# TODO check pdm classes function shows included and excluded
 
 
 class CustomConfig(metaclass=MustBeSet):
