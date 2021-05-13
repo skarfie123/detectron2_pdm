@@ -33,7 +33,7 @@ def compare(
         tests = [testIndex]
 
     for i in tests:
-        print(f"Test: {i}")
+        print(f"Test: {i} - {CustomConfig.testingConfigs[i].folder}")
         dataset = CustomConfig.testingConfigs[i].dataset
         Datasets.register(
             CustomConfig.testingConfigs[i].imageset,

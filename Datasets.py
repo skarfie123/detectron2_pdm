@@ -51,7 +51,7 @@ def register(imageset, dataset):
             f"/content/{imageset}/",
         )
     except AssertionError:
-        print("Dataset already registered")
+        print(f"Dataset {dataset} already registered")
 
 
 def clear():
