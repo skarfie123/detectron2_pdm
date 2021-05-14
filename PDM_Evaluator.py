@@ -103,7 +103,13 @@ class MeasurementData:
     "Holds Measurement related values for a class"
 
     def __init__(self) -> None:
-        self.sums: Dict[str, float] = {}
+        self.sums: Dict[str, float] = {
+            METRIC_PRECISION: 0.0,
+            METRIC_RECALL: 0.0,
+            METRIC_F1: 0.0,
+            METRIC_SPATIAL_ERROR: 0.0,
+            METRIC_IOU: 0.0,
+        }
         self.count = 0
         self.annotatedPixels = 0
 
