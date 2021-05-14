@@ -160,7 +160,6 @@ class PDM_Evaluator(DatasetEvaluator):
         self.reset()
 
     def reset(self):
-        self.totalAnnotations = 0
         self.presences: Dict[int, PresenceData] = {}
         self.detections: Dict[int, DetectionData] = {}
         self.measurements: Dict[int, MeasurementData] = {}
@@ -264,6 +263,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 self.measurements[c].count += 1
                 self.measurements[c].annotatedPixels += sum(a_mask)
 
+    @print_result
     def evaluate(self):
         Presence = {}
         Detection = {}
@@ -303,13 +303,11 @@ class PDM_Evaluator(DatasetEvaluator):
             Measurement[f"{classNames[c]}: {METRIC_F1}"] = self.measurements[c].f1()
             Measurement[f"{classNames[c]}: {METRIC_GENERALITY}"] = self.measurements[
                 c
-            ].generality(self.totalAnnotations)
+            ].generality(self.totalPixels)
             Measurement[f"{classNames[c]}: {METRIC_SPATIAL_ERROR}"] = self.measurements[
                 c
             ].spatial_error()
-            Measurement[f"{classNames[c]}: {METRIC_IOU}"] = self.measurements[c].iou(
-                self.totalPixels
-            )
+            Measurement[f"{classNames[c]}: {METRIC_IOU}"] = self.measurements[c].iou()
 
         for metric in [METRIC_PRECISION, METRIC_RECALL, METRIC_F1, METRIC_GENERALITY]:
             Presence[f"Average: {metric}"] = np.mean(
