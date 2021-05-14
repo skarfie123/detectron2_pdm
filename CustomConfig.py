@@ -56,11 +56,11 @@ class CustomConfig(metaclass=MustBeSet):
 
         cls.set_drive(driveOutputs, driveDatasets)
 
-        if model:
+        if model is not None:
             cls.model = model
-        if modelWeights:
+        if modelWeights is not None:
             cls.modelWeights = modelWeights
-        if saveInterval:
+        if saveInterval is not None:
             cls.saveInterval = saveInterval
 
     @classmethod
