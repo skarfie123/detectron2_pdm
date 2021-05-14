@@ -189,6 +189,10 @@ class PDM_Evaluator(DatasetEvaluator):
 
             # Measurement
             self.process_measurement(c, annotations, predictions, triplets)
+            for a in annotations:
+                # need to do this for all annotations not just in triplets
+                a_mask = self.convert_polygon(a["segmentation"][0])
+                self.measurements[c].annotatedPixels += sum(a_mask)
 
         if not len(outputs + inputs) == 2:
             print(
@@ -261,9 +265,8 @@ class PDM_Evaluator(DatasetEvaluator):
                 self.measurements[c].sums[METRIC_SPATIAL_ERROR] += se
                 self.measurements[c].sums[METRIC_IOU] += iou
                 self.measurements[c].count += 1
-                self.measurements[c].annotatedPixels += sum(a_mask)
 
-    @print_result
+    @PDM_Evaluator.print_result
     def evaluate(self):
         Presence = {}
         Detection = {}
