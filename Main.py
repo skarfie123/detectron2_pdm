@@ -31,9 +31,6 @@ def get_cfg(
         cfg.merge_from_file(CustomConfig.model)
         cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
 
-    if weights_file is not None:
-        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
-
     cfg.TEST.EVAL_PERIOD = 100
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.SOLVER.IMS_PER_BATCH = 2
@@ -47,6 +44,8 @@ def get_cfg(
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
     if CustomConfig.load(cfg.OUTPUT_DIR):
         print("Note: config existed in training folder so loaded it")
+    if weights_file is not None:
+        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
 
     cfg.DATASETS.TRAIN = (CustomConfig.trainingConfig.dataset + "_train",)
     cfg.DATASETS.TEST = (CustomConfig.trainingConfig.dataset + "_val",)
