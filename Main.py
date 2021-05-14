@@ -24,6 +24,23 @@ def get_cfg(
         cfg.merge_from_file(mz.get_config_file(CustomConfig.model))
         cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(CustomConfig.model)
     else:
+        """Add config for ResNeSt"""
+        # Place the stride 2 conv on the 1x1 filter
+        # Use True only for the original MSRA ResNet;
+        # use False for C2 and Torch models
+        cfg.MODEL.RESNETS.STRIDE_IN_1X1 = False
+        # Apply deep stem
+        cfg.MODEL.RESNETS.DEEP_STEM = True
+        # Apply avg after conv2 in the BottleBlock
+        # When AVD=True, the STRIDE_IN_1X1 should be False
+        cfg.MODEL.RESNETS.AVD = True
+        # Apply avg_down to the downsampling layer for residual path
+        cfg.MODEL.RESNETS.AVG_DOWN = True
+        # Radix in ResNeSt
+        cfg.MODEL.RESNETS.RADIX = 2
+        # Bottleneck_width in ResNeSt
+        cfg.MODEL.RESNETS.BOTTLENECK_WIDTH = 64
+
         cfg.merge_from_file(CustomConfig.model)
         cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
     if weights_file is not None:
@@ -55,13 +72,9 @@ def get_cfg(
     return cfg
 
 
-def train(
-    iterations=None,
-    evaluation=False,
-    resume=True,
-    save=False,
-):
-    cfg = get_cfg(iterations=iterations)
+def train(iterations=None, evaluation=False, resume=True, save=False, cfg=None):
+    if cfg is None:
+        cfg = get_cfg(iterations=iterations)
 
     CustomConfig.save(cfg.OUTPUT_DIR)
 
