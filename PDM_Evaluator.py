@@ -192,7 +192,7 @@ class PDM_Evaluator(DatasetEvaluator):
             for a in annotations:
                 # need to do this for all annotations not just in triplets
                 a_mask = self.convert_polygon(a["segmentation"][0])
-                self.measurements[c].annotatedPixels += sum(a_mask)
+                self.measurements[c].annotatedPixels += np.sum(a_mask)
 
         if not len(outputs + inputs) == 2:
             print(
