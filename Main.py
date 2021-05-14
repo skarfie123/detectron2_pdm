@@ -22,14 +22,15 @@ def get_cfg(
 ):
     cfg = get_default()
 
-    if CustomConfig.modelWeights == "":
+    try:
         cfg.merge_from_file(mz.get_config_file(CustomConfig.model))
         cfg.MODEL.WEIGHTS = mz.get_checkpoint_url(CustomConfig.model)
-    else:
+    except RuntimeError:
         add_resnest_config(cfg)
 
         cfg.merge_from_file(CustomConfig.model)
         cfg.MODEL.WEIGHTS = CustomConfig.modelWeights
+
     if weights_file is not None:
         cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
 
