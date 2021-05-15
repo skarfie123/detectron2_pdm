@@ -168,6 +168,14 @@ class PDM_Evaluator(DatasetEvaluator):
             self.detections[c] = DetectionData()
             self.measurements[c] = MeasurementData()
 
+    def print_result(func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            print(func.__name__, result)
+            return result
+
+        return wrapper
+
     def process(self, inputs, outputs):
         instances = outputs[0]["instances"]
         filename = inputs[0]["file_name"]
@@ -266,7 +274,7 @@ class PDM_Evaluator(DatasetEvaluator):
                 self.measurements[c].sums[METRIC_IOU] += iou
                 self.measurements[c].count += 1
 
-    @PDM_Evaluator.print_result
+    @print_result
     def evaluate(self):
         Presence = {}
         Detection = {}
@@ -343,14 +351,6 @@ class PDM_Evaluator(DatasetEvaluator):
             "PDM: Measurement": Measurement,
         }
         return OrderedDict(result)
-
-    def print_result(func):
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            print(func.__name__, result)
-            return result
-
-        return wrapper
 
     @staticmethod
     def convert_polygon(polygon):
