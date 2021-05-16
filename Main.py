@@ -70,7 +70,7 @@ def train(iterations=None, evaluation=False, resume=True, save=False, cfg=None):
     trainer.train()
 
     if evaluation:
-        evaluate()
+        evaluate(cfg=cfg)
 
     if save:
         if resume or not os.exists(
@@ -96,12 +96,16 @@ def train(iterations=None, evaluation=False, resume=True, save=False, cfg=None):
 
 
 def evaluate(
+    cfg=None,
     subset: str = "_test",
     threshold: float = 0.7,
     weights_file="model_final.pth",
     testIndex: int = None,
 ):
-    cfg = get_cfg(weights_file=weights_file)
+    if cfg == None:
+        cfg = get_cfg(weights_file=weights_file)
+    elif weights_file is not None:
+        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
     trainer = CustomTrainer(cfg)
     trainer.resume_or_load(resume=False)
