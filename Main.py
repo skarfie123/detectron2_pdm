@@ -16,10 +16,7 @@ from resnest.d2 import add_resnest_config
 # TODO: make it not assume /content/outputs, and use os.path.join
 
 
-def get_cfg(
-    iterations: int = 1000,
-    weights_file: str = None,
-):
+def get_cfg(iterations: int = 1000, weights_file: str = None, load=True):
     cfg = get_default()
 
     try:
@@ -42,8 +39,9 @@ def get_cfg(
     cfg.OUTPUT_DIR = f"/content/outputs/{CustomConfig.trainingConfig.folder}"
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     print(f"Output Dir: {cfg.OUTPUT_DIR}")
-    if CustomConfig.load(cfg.OUTPUT_DIR):
-        print("Note: config existed in training folder so loaded it")
+    if load:
+        if CustomConfig.load(cfg.OUTPUT_DIR):
+            print("Note: config existed in training folder so loaded it")
     if weights_file is not None:
         cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
 

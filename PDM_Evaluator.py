@@ -81,6 +81,7 @@ class DetectionData:
         self.fp: int = 0
         self.fn: int = 0
         self.se_sum: float = 0  # sum of spactial errors for each tp
+        self.annotations = 0
 
     def precision(self) -> float:
         try:
@@ -107,7 +108,7 @@ class DetectionData:
 
     def generality(self, total_annotations: int) -> float:
         "annotations of this class / total annotations"
-        return (self.tp + self.fn) / total_annotations
+        return self.annotations / total_annotations
 
     def spatial_error(self) -> float:
         try:
@@ -211,6 +212,7 @@ class PDM_Evaluator(DatasetEvaluator):
             # Detection
             triplets = self.process_detection(c, annotations, predictions)
             # NOTE: since we already matched pairs and calculated distances in Detection, we can pass them on as triplets to Measurement
+            self.detections[c].annotations = len(annotations)
 
             # Measurement
             self.process_measurement(c, annotations, predictions, triplets)
