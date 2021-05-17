@@ -18,6 +18,23 @@ METRIC_GENERALITY = "Generality"
 METRIC_SPATIAL_ERROR = "Spatial Error"
 METRIC_IOU = "IoU"
 
+METRICS_P = [METRIC_PRECISION, METRIC_RECALL, METRIC_F1, METRIC_GENERALITY]
+METRICS_D = [
+    METRIC_PRECISION,
+    METRIC_RECALL,
+    METRIC_F1,
+    METRIC_GENERALITY,
+    METRIC_SPATIAL_ERROR,
+]
+METRICS_M = [
+    METRIC_PRECISION,
+    METRIC_RECALL,
+    METRIC_F1,
+    METRIC_GENERALITY,
+    METRIC_SPATIAL_ERROR,
+    METRIC_IOU,
+]
+
 
 class PresenceData:
     "Holds Presence related values for a class"
@@ -320,28 +337,15 @@ class PDM_Evaluator(DatasetEvaluator):
             ].spatial_error()
             Measurement[f"{classNames[c]}: {METRIC_IOU}"] = self.measurements[c].iou()
 
-        for metric in [METRIC_PRECISION, METRIC_RECALL, METRIC_F1, METRIC_GENERALITY]:
+        for metric in METRICS_P:
             Presence[f"Average: {metric}"] = np.mean(
                 [Presence[f"{classNames[c]}: {metric}"] for c in self.classes]
             )
-        for metric in [
-            METRIC_PRECISION,
-            METRIC_RECALL,
-            METRIC_F1,
-            METRIC_GENERALITY,
-            METRIC_SPATIAL_ERROR,
-        ]:
+        for metric in METRICS_D:
             Detection[f"Average: {metric}"] = np.mean(
                 [Detection[f"{classNames[c]}: {metric}"] for c in self.classes]
             )
-        for metric in [
-            METRIC_PRECISION,
-            METRIC_RECALL,
-            METRIC_F1,
-            METRIC_GENERALITY,
-            METRIC_SPATIAL_ERROR,
-            METRIC_IOU,
-        ]:
+        for metric in METRICS_M:
             Measurement[f"Average: {metric}"] = np.mean(
                 [Measurement[f"{classNames[c]}: {metric}"] for c in self.classes]
             )
