@@ -212,7 +212,7 @@ class PDM_Evaluator(DatasetEvaluator):
             # Detection
             triplets = self.process_detection(c, annotations, predictions)
             # NOTE: since we already matched pairs and calculated distances in Detection, we can pass them on as triplets to Measurement
-            self.detections[c].annotations = len(annotations)
+            self.detections[c].annotations += len(annotations)
 
             # Measurement
             self.process_measurement(c, annotations, predictions, triplets)
