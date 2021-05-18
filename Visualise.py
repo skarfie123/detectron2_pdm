@@ -38,6 +38,8 @@ def compare(
     else:
         tests = [testIndex]
 
+    randomSelection = None
+
     for i in tests:
         print(f"Test: {i} - {CustomConfig.testingConfigs[i].folder}")
         dataset = CustomConfig.testingConfigs[i].dataset
@@ -48,7 +50,14 @@ def compare(
 
         dataset_dicts = DatasetCatalog.get(dataset + subset)
         if random is not None:
-            dataset_dicts = rnd.sample(dataset_dicts, random)
+            if randomSelection is None:
+                dataset_dicts = rnd.sample(dataset_dicts, random)
+                randomSelection = {d["file_name"] for d in dataset_dicts}
+            else:
+                dataset_dicts = [
+                    d for d in dataset_dicts if d["file_name"] in randomSelection
+                ]
+
         count = 0
         errors = 0
         for d in dataset_dicts:
