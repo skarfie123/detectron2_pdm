@@ -15,6 +15,7 @@ from detectron2_pdm.Main import get_cfg
 
 
 def compare(
+    cfg=None,
     subset: str = "_test",
     filterAnnotation: int = None,
     filterOutput: int = None,
@@ -23,9 +24,14 @@ def compare(
     threshold: float = 0.7,
     original: bool = False,
     testIndex: int = None,
+    weights_file="model_final.pth",
 ):
-    cfg = get_cfg()
+    if cfg == None:
+        cfg = get_cfg(weights_file=weights_file)
+    elif weights_file is not None:
+        cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = threshold
+    predictor = DefaultPredictor(cfg)
 
     if testIndex is None:
         tests = list(range(len(CustomConfig.testingConfigs)))
@@ -40,7 +46,6 @@ def compare(
             dataset,
         )
 
-        predictor = DefaultPredictor(cfg)
         dataset_dicts = DatasetCatalog.get(dataset + subset)
         if random is not None:
             dataset_dicts = rnd.sample(dataset_dicts, random)
