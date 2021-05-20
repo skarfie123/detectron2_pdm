@@ -25,8 +25,9 @@ def compare(
     original: bool = False,
     testIndex: int = None,
     weights_file="model_final.pth",
+    save=False,
 ):
-    if cfg == None:
+    if cfg is None:
         cfg = get_cfg(weights_file=weights_file)
     elif weights_file is not None:
         cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
@@ -129,26 +130,32 @@ def compare(
                     }
                 )
                 if original:
-                    cv2_imshow(
-                        np.concatenate(
-                            (
-                                cv2.resize(im, (0, 0), fx=0.5, fy=0.5),
-                                out.get_image()[:, :, ::-1],
-                                out2.get_image()[:, :, ::-1],
-                            ),
-                            axis=1,
-                        )
+                    img = np.concatenate(
+                        (
+                            cv2.resize(im, (0, 0), fx=0.5, fy=0.5),
+                            out.get_image()[:, :, ::-1],
+                            out2.get_image()[:, :, ::-1],
+                        ),
+                        axis=1,
                     )
                 else:
-                    cv2_imshow(
-                        np.concatenate(
-                            (
-                                out.get_image()[:, :, ::-1],
-                                out2.get_image()[:, :, ::-1],
-                            ),
-                            axis=1,
-                        )
+                    img = np.concatenate(
+                        (
+                            out.get_image()[:, :, ::-1],
+                            out2.get_image()[:, :, ::-1],
+                        ),
+                        axis=1,
                     )
+                if save:
+                    cv2.imwrite(
+                        os.path.join(
+                            CustomConfig.testingConfigs[i].folder,
+                            os.path.basename(d["file_name"]),
+                        ),
+                        img,
+                    )
+                else:
+                    cv2_imshow(img)
                 count += 1
             except Exception:
                 print("Error:", d["file_name"])
