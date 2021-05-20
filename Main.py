@@ -100,7 +100,7 @@ def evaluate(
     weights_file="model_final.pth",
     testIndex: int = None,
 ):
-    if cfg == None:
+    if cfg is None:
         cfg = get_cfg(weights_file=weights_file)
     elif weights_file is not None:
         cfg.MODEL.WEIGHTS = f"{cfg.OUTPUT_DIR}/{weights_file}"
