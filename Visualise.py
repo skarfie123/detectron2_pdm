@@ -49,18 +49,24 @@ def compare(
         )
 
         dataset_dicts = DatasetCatalog.get(dataset + subset)
+        # TODO: apply filters before random
         if random is not None:
             if randomSelection is None:
                 dataset_dicts = rnd.sample(dataset_dicts, random)
-                randomSelection = {d["file_name"] for d in dataset_dicts}
+                randomSelection = {
+                    os.path.basename(d["file_name"]) for d in dataset_dicts
+                }
             else:
                 dataset_dicts = [
-                    d for d in dataset_dicts if d["file_name"] in randomSelection
+                    d
+                    for d in dataset_dicts
+                    if os.path.basename(d["file_name"]) in randomSelection
                 ]
 
         count = 0
         errors = 0
         for d in dataset_dicts:
+            print(os.path.basename(d["file_name"]))
             try:
                 if (
                     filterAnnotation is not None
