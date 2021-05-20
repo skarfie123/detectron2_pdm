@@ -84,6 +84,15 @@ def compare(
 
                 im = cv2.imread(d["file_name"])
                 outputs = predictor(im)
+                outputs["instances"] = outputs["instances"][
+                    [
+                        (
+                            outputs["instances"].pred_classes[j]
+                            in CustomConfig.testingConfigs[i].pdmClasses
+                        )
+                        for j in range(len(outputs["instances"].pred_classes))
+                    ]
+                ]
                 v = Visualizer(
                     im[:, :, ::-1],
                     metadata=MetadataCatalog.get(dataset + subset),
@@ -108,7 +117,17 @@ def compare(
                     metadata=MetadataCatalog.get(dataset + subset),
                     scale=scale,
                 )
-                out2 = visualizer.draw_dataset_dict(d)
+                out2 = visualizer.draw_dataset_dict(
+                    {
+                        **d,
+                        "annotations": [
+                            j
+                            for j in d["annotations"]
+                            if j["category_id"]
+                            in CustomConfig.testingConfigs[i].pdmClasses
+                        ],
+                    }
+                )
                 if original:
                     cv2_imshow(
                         np.concatenate(
