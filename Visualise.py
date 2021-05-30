@@ -67,7 +67,8 @@ def compare(
         count = 0
         errors = 0
         for d in dataset_dicts:
-            print(os.path.basename(d["file_name"]))
+            base = os.path.basename(d["file_name"])
+            print(base)
             try:
                 if (
                     filterAnnotation is not None
@@ -148,10 +149,7 @@ def compare(
                     )
                 if save:
                     cv2.imwrite(
-                        os.path.join(
-                            CustomConfig.testingConfigs[i].folder,
-                            os.path.basename(d["file_name"]),
-                        ),
+                        f"/content/outputs/{CustomConfig.testingConfigs[i].folder}/{base}",
                         img,
                     )
                 else:

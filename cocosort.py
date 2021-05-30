@@ -64,7 +64,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Splits COCO annotations file into training and test sets."
+        description="Sorts COCO annotations file"
     )
     parser.add_argument(
         "annotations",

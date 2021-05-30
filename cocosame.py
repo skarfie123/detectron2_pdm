@@ -30,27 +30,38 @@ def main(args):
     with open(args.original, "rt", encoding="UTF-8") as annotations:
         coco = json.load(annotations)
         images = coco["images"]
+        categories = coco["categories"]
 
         print("original", sorted(int(i["file_name"][9:12]) for i in images))
         ims = set(i["file_name"] for i in images)
+        cats_orig = {c["name"]: c["id"] for c in categories}
+    print(cats_orig)
     with open(args.target, "rt", encoding="UTF-8") as annotations:
-        coco = json.load(annotations)
-        info = coco["info"]
-        licenses = coco["licenses"]
-        images = coco["images"]
-        anns = coco["annotations"]
-        categories = coco["categories"]
+        coco2 = json.load(annotations)
+        info2 = coco2["info"]
+        licenses2 = coco2["licenses"]
+        images2 = coco2["images"]
+        anns2 = coco2["annotations"]
+        categories2 = coco2["categories"]
 
         print("target before", sorted(int(i["file_name"][9:12]) for i in images))
+        print("")
 
-        images = [i for i in images if i["file_name"] in ims]
+        images2 = [i for i in images2 if i["file_name"] in ims]
+        cats_target = {c["id"]: c["name"] for c in categories2}
+        for a in anns2:
+            a["category_id"] = cats_orig[cats_target[a["category_id"]]]
         print("target after", sorted(int(i["file_name"][9:12]) for i in images))
+        print("")
+        print(cats_target)
+        print("")
+        print(categories, categories2)
         save_coco(
             args.target,
-            info,
-            licenses,
-            images,
-            filter_annotations(anns, images),
+            info2,
+            licenses2,
+            images2,
+            filter_annotations(anns2, images2),
             categories,
         )
 
@@ -64,7 +75,9 @@ if __name__ == "__main__":
         type=str,
         help="Path to COCO annotations file.",
     )
-    parser.add_argument("target", type=str, help="Where to store COCO training annotations")
+    parser.add_argument(
+        "target", type=str, help="Where to store COCO training annotations"
+    )
 
     args = parser.parse_args()
     main(args)

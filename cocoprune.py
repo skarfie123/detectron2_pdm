@@ -61,13 +61,13 @@ def main(args):
                 print("Annotations filtered by size", len(annotations))
 
             # remove images with no annotations
-            images_with_annotations = funcy.lmap(
-                lambda a: int(a["image_id"]), annotations
-            )
-            images = funcy.lremove(
-                lambda i: i["id"] not in images_with_annotations, images
-            )
-            print("Removed empty images", len(images))
+            # images_with_annotations = funcy.lmap(
+            #     lambda a: int(a["image_id"]), annotations
+            # )
+            # images = funcy.lremove(
+            #     lambda i: i["id"] not in images_with_annotations, images
+            # )
+            # print("Removed empty images", len(images))
 
             # remove images copy images
             images = funcy.lremove(lambda i: "copy" in i["file_name"].lower(), images)
