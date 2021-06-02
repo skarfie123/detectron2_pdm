@@ -1,6 +1,6 @@
 # Observations from the test sets
 
-M 042 refers to image 42 from the M set.
+M, 042 refers to image 42 from the M and G sets.
 
 ## Contrast (missing)
 
@@ -63,7 +63,7 @@ M 042 refers to image 42 from the M set.
 - lots of road markings
 - M 118: sidewalk
 
-## Broken, seperate (duplicates)
+## Broken, separate (duplicates)
 
 - M,G 042: road marking
 - M,G 281: road marking

@@ -6,3 +6,5 @@ ignore*
 *.code-workspace
 .vscode/
 __pycache__/
+.ipynb_checkpoints/
+*.lnk
