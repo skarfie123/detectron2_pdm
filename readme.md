@@ -3,8 +3,8 @@
 ## Usage
 
 - Apply black masks using `black_mask.py`
-- Prepare dataset using `split.cmd` and `zip.cmd`
   - eg. `python folder/to/images mask1.png mask2.png`
+- Prepare dataset using `split.cmd` and `zip.cmd`
 - Train the Mask R-CNN model using [`Detectron-PDM.ipynb`](https://gist.github.com/skarfie123/1874f1deacf9aaeb83ca9199543ba9ff) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/skarfie123/1874f1deacf9aaeb83ca9199543ba9ff/detectron2-pdm.ipynb)
 - Validation data is in the `validation` folder
   - plot these using [TensorBoard](https://github.com/tensorflow/tensorboard)
