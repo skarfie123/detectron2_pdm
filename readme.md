@@ -11,6 +11,7 @@
   - eg. `tensorboard --logdir validation --port 6008`
 - Plot graphs from the evaluation results using [`Detectron-PDM-Results.ipynb`](https://gist.github.com/skarfie123/9b08b5041f56526bf7916f20c7177ac6) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/skarfie123/9b08b5041f56526bf7916f20c7177ac6/detectron2-pdm-results.ipynb)
 - Evaluation plots are in the `graphs` folder
+- [Dataset](https://github.com/skarfie123/detectron2_pdm/releases/tag/d1)
 
 ## Acknowledgements
 
